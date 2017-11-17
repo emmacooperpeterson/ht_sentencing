@@ -61,13 +61,39 @@ function makeChart() {
                   .domain([d3.max(dataset, function(d) {return d.sentence;}), 0])
                   .range([width - 3*margin.right, 0]);
 
-  //x axis
-  chart.append('g')
-      .call(d3.axisLeft(xScale));
 
   //y axis
   chart.append('g')
-      .call(d3.axisTop(yScale));
+      .call(d3.axisTop(yScale)
+              .tickSizeInner(0)
+              .tickSizeOuter(0)
+              .tickPadding(10))
+      .attr('id', 'y-ticks');
+
+      //gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+      function make_x_gridlines() {
+        return d3.axisBottom(yScale)
+      }
+
+      //add the gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+      chart.append("g")
+            .attr("class", "grid")
+            .attr("transform", "translate(0," + height + ")")
+            .call(make_x_gridlines()
+                .tickSize(-height)
+                .tickFormat("")
+            )
+
+      //remove horizonal line of y axis https://bl.ocks.org/mbostock/3371592
+      function customYAxis(g) {
+            chart.call(yScale);
+            chart.select(".domain").remove(); }
+
+      chart.append("g")
+           .call(customYAxis);
+
+      chart.append("g")
+            .call(customYAxis);
 
 
   //judge_race
@@ -131,49 +157,49 @@ function makeChart() {
 
 
     //append min lines
-          chart.selectAll(".rect")
-            .data(judgeRace)
-            .enter()
-            .append("rect")
-            .attr("class", "rect")
-            .attr("x", function(d) {return yScale(d.value.min);})
-            .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
-            .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
-            .attr("height", 12)
-            .attr("class", function(d) {
-                  var c
-                  if (d.key == 0) {c = 'white-max'}
-                  else if (d.key == 1) {c = 'black-max'}
-                  else if (d.key == 2) {c = 'hisp-max'}
-                  else if (d.key == 3) {c = 'asian-max'}
-                  else if (d.key == 4) {c = 'indian-max'}
-                  else if (d.key == 5) {c = 'other-max'}
-                  else {c = 'nan-max'}
-                  return c
-            });
+    chart.selectAll(".rect")
+          .data(judgeRace)
+          .enter()
+          .append("rect")
+          .attr("class", "rect")
+          .attr("x", function(d) {return yScale(d.value.min);})
+          .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+          .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
+          .attr("height", 12)
+          .attr("class", function(d) {
+                var c
+                if (d.key == 0) {c = 'white-max'}
+                else if (d.key == 1) {c = 'black-max'}
+                else if (d.key == 2) {c = 'hisp-max'}
+                else if (d.key == 3) {c = 'asian-max'}
+                else if (d.key == 4) {c = 'indian-max'}
+                else if (d.key == 5) {c = 'other-max'}
+                else {c = 'nan-max'}
+                return c
+          });
 
 
-            //append iqr lines
-                  chart.selectAll(".rect")
-                    .data(judgeRace)
-                    .enter()
-                    .append("rect")
-                    .attr("class", "rect")
-                    .attr("x", function(d) {return yScale(d.value.q1);})
-                    .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
-                    .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
-                    .attr("height", 12)
-                    .attr("class", function(d) {
-                          var c
-                          if (d.key == 0) {c = 'white-iqr'}
-                          else if (d.key == 1) {c = 'black-iqr'}
-                          else if (d.key == 2) {c = 'hisp-iqr'}
-                          else if (d.key == 3) {c = 'asian-iqr'}
-                          else if (d.key == 4) {c = 'indian-iqr'}
-                          else if (d.key == 5) {c = 'other-iqr'}
-                          else {c = 'nan-iqr'}
-                          return c
-                    });
+    //append iqr lines
+    chart.selectAll(".rect")
+          .data(judgeRace)
+          .enter()
+          .append("rect")
+          .attr("class", "rect")
+          .attr("x", function(d) {return yScale(d.value.q1);})
+          .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+          .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
+          .attr("height", 12)
+          .attr("class", function(d) {
+                var c
+                if (d.key == 0) {c = 'white-iqr'}
+                else if (d.key == 1) {c = 'black-iqr'}
+                else if (d.key == 2) {c = 'hisp-iqr'}
+                else if (d.key == 3) {c = 'asian-iqr'}
+                else if (d.key == 4) {c = 'indian-iqr'}
+                else if (d.key == 5) {c = 'other-iqr'}
+                else {c = 'nan-iqr'}
+                return c
+          });
 
 
 
