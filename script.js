@@ -86,7 +86,7 @@ function makeChart() {
     .enter()
     .append("circle")
     .attr("class", "circle")
-    .attr("cy", function(d) {return xScale(d.key);})
+    .attr("cy", function(d) {return xScale(d.key) + 0.5*xScale.bandwidth();})
     .attr("cx", function(d) {return yScale(d.value);})
     .attr("r", 15)
     .style("fill", function(d) {

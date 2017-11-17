@@ -54,8 +54,8 @@ cases <- transform(cases, recruit = as.numeric(recruit))
 defendants <- defendants %>% 
   mutate(sentence = ifelse(sentence == 999, NA, sentence)) %>% #999 is for unknown
   mutate(sentence = sentence / 12) %>%
-  filter(!is.na(sentence)) #%>% #remove those with unknown sentence
-#filter(sentence < mean(sentence) + 2*sd(sentence)) %>% #remove outliers (2+ std above mean)
+  filter(!is.na(sentence)) %>%
+  filter(sentence < mean(sentence) + 2*sd(sentence)) #remove outliers (2+ std above mean)
 
 #####
 
@@ -111,6 +111,7 @@ crime_locations <- transform(crime_locations, region = as.numeric(region))
 jud_def <- full_join(judges, defendants, by = 'judge_id')
 case_loc <- full_join(cases, crime_locations, by = 'case_id')
 ht_sentencing <- full_join(case_loc, jud_def, by = 'case_id')
+ht_sentencing <- filter(ht_sentencing, !is.na(sentence))
 
 ###############
 #### WRITE ####
