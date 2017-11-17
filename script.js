@@ -45,4 +45,24 @@ function makeChart() {
           .attr("width", width)
           .attr("height", height);
 
+  //create scales
+  var xScale = d3.scaleBand()
+                  .domain(dataset.map(function(d) {return d.judge_race;}))
+                  .range([0,width])
+
+  var yScale = d3.scaleLinear()
+                  .domain([d3.max(dataset, function(d) {return d.sentence;}), 0])
+                  .range([height, 0]);
+
+  //x axis
+  chart.append('g')
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .call(d3.axisLeft(xScale));
+
+  //y axis
+  chart.append('g')
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .call(d3.axisTop(yScale));
+
+
 };
