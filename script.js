@@ -1,3 +1,9 @@
+//set margins
+var margin = {top: 100, right: 100, bottom: 100, left: 100};
+var width = 1000;
+var height = 800;
+
+//to convert time variable
 var parseDate = d3.timeParse("%Y");
 
 //load data
@@ -32,4 +38,11 @@ d3.json("ht_sentencing.json", function(error, data) {
 
 function makeChart() {
   console.log(dataset);
+
+  //set up svg
+  chart = d3.select("#chart")
+          .append('svg')
+          .attr("width", width)
+          .attr("height", height);
+
 };
