@@ -1,1 +1,1 @@
-Source: [HumanTraffickingData.org](www.humantraffickingdata.org]
+Source: [HumanTraffickingData.org](www.humantraffickingdata.org)
