@@ -70,36 +70,86 @@ function makeChart() {
       .call(d3.axisTop(yScale));
 
 
-  //medians
-  var judgeRaceMed = d3.nest()
-      .key(function(d) { return d.judge_race; }  )
-      .rollup(function(v) {
-                return d3.median(v, function(d) {
-                                      return d.sentence;
-                                                })
-                          })
+  //judge_race
+  var judgeRace = d3.nest()
+      .key(function(d) {return d.judge_race;})
+      .rollup(function(v) {return {
+                min: d3.min(v, function(d) {return d.sentence}),
+                median: d3.median(v, function(d) {return d.sentence;}),
+                max: d3.max(v, function(d) {return d.sentence;})
+                };
+              })
       .entries(dataset);
-  console.log(judgeRaceMed)
+  console.log(judgeRace);
 
+
+  //append circles
   chart.selectAll(".circle")
-    .data(judgeRaceMed)
+    .data(judgeRace)
     .enter()
     .append("circle")
     .attr("class", "circle")
-    .attr("cy", function(d) {return xScale(d.key) + 0.5*xScale.bandwidth();})
-    .attr("cx", function(d) {return yScale(d.value);})
+    .attr("cy", function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
+    .attr("cx", function(d) {return yScale(d.value.median);})
     .attr("r", 15)
-    .style("fill", function(d) {
+    .attr("class", function(d) {
           var c
-          if (d.key == 0) {c = 'black'}
-          else if (d.key == 1) {c = 'magenta'}
-          else if (d.key == 2) {c = 'purple'}
-          else if (d.key == 3) {c = 'red'}
-          else if (d.key == 4) {c = 'yellow'}
-          else if (d.key == 5) {c = 'orange'}
-          else {c = 'green'}
+          if (d.key == 0) {c = 'white-med'}
+          else if (d.key == 1) {c = 'black-med'}
+          else if (d.key == 2) {c = 'hisp-med'}
+          else if (d.key == 3) {c = 'asian-med'}
+          else if (d.key == 4) {c = 'indian-med'}
+          else if (d.key == 5) {c = 'other-med'}
+          else {c = 'nan-med'}
           return c
     });
+
+    //append max lines
+    chart.selectAll(".rect")
+      .data(judgeRace)
+      .enter()
+      .append("rect")
+      .attr("class", "rect")
+      .attr("x", function(d) {return yScale(d.value.median);})
+      .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+      .attr("width", function(d) {return yScale(d.value.max - d.value.median);})
+      .attr("height", 12)
+      .attr("class", function(d) {
+            var c
+            if (d.key == 0) {c = 'white-max'}
+            else if (d.key == 1) {c = 'black-max'}
+            else if (d.key == 2) {c = 'hisp-max'}
+            else if (d.key == 3) {c = 'asian-max'}
+            else if (d.key == 4) {c = 'indian-max'}
+            else if (d.key == 5) {c = 'other-max'}
+            else {c = 'nan-max'}
+            return c
+      });
+
+
+    //append min lines
+          chart.selectAll(".rect")
+            .data(judgeRace)
+            .enter()
+            .append("rect")
+            .attr("class", "rect")
+            .attr("x", function(d) {return yScale(d.value.min);})
+            .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+            .attr("width", function(d) {return yScale(d.value.median - d.value.min);})
+            .attr("height", 12)
+            .attr("class", function(d) {
+                  var c
+                  if (d.key == 0) {c = 'white-max'}
+                  else if (d.key == 1) {c = 'black-max'}
+                  else if (d.key == 2) {c = 'hisp-max'}
+                  else if (d.key == 3) {c = 'asian-max'}
+                  else if (d.key == 4) {c = 'indian-max'}
+                  else if (d.key == 5) {c = 'other-max'}
+                  else {c = 'nan-max'}
+                  return c
+            });
+
+
 
 
   //title

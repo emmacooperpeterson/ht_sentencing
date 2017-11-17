@@ -3,8 +3,42 @@ sidebar {background-color: 'pink'}
 
 .title {
   font-size: 20px;
-  font-family: 'Montserrat', sans-serif;}
+  font-family: 'Montserrat', sans-serif;
+}
 
 .side-header {
   font-size: 14px;
-  font-family: 'Montserrat', sans-serif;}
+  font-family: 'Montserrat', sans-serif;
+}
+
+.white-med {
+  fill: rgb(178, 107, 24)
+}
+
+.black-med {
+  fill: rgb(42, 69, 76)
+}
+
+.hisp-med {
+  fill: rgb(94, 93, 64)
+}
+
+.asian-med {
+  fill: rgb(183, 150, 13)
+}
+
+.white-max {
+  fill: rgba(178, 107, 24, 0.6)
+}
+
+.black-max {
+  fill: rgba(42, 69, 76, 0.6)
+}
+
+.hisp-max {
+  fill: rgba(94, 93, 64, 0.6)
+}
+
+.asian-max {
+  fill: rgba(183, 150, 13, 0.6)
+}
