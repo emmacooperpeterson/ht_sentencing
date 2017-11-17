@@ -75,12 +75,15 @@ function makeChart() {
       .key(function(d) {return d.judge_race;})
       .rollup(function(v) {return {
                 min: d3.min(v, function(d) {return d.sentence}),
+                q1: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.25),
                 median: d3.median(v, function(d) {return d.sentence;}),
+                q3: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.75),
                 max: d3.max(v, function(d) {return d.sentence;})
                 };
               })
       .entries(dataset);
   console.log(judgeRace);
+
 
 
   //append circles
@@ -110,7 +113,7 @@ function makeChart() {
       .enter()
       .append("rect")
       .attr("class", "rect")
-      .attr("x", function(d) {return yScale(d.value.median);})
+      .attr("x", function(d) {return yScale(d.value.q3);})
       .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
       .attr("width", function(d) {return yScale(d.value.max - d.value.median);})
       .attr("height", 12)
@@ -135,7 +138,7 @@ function makeChart() {
             .attr("class", "rect")
             .attr("x", function(d) {return yScale(d.value.min);})
             .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
-            .attr("width", function(d) {return yScale(d.value.median - d.value.min);})
+            .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
             .attr("height", 12)
             .attr("class", function(d) {
                   var c
@@ -148,6 +151,29 @@ function makeChart() {
                   else {c = 'nan-max'}
                   return c
             });
+
+
+            //append iqr lines
+                  chart.selectAll(".rect")
+                    .data(judgeRace)
+                    .enter()
+                    .append("rect")
+                    .attr("class", "rect")
+                    .attr("x", function(d) {return yScale(d.value.q1);})
+                    .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+                    .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
+                    .attr("height", 12)
+                    .attr("class", function(d) {
+                          var c
+                          if (d.key == 0) {c = 'white-iqr'}
+                          else if (d.key == 1) {c = 'black-iqr'}
+                          else if (d.key == 2) {c = 'hisp-iqr'}
+                          else if (d.key == 3) {c = 'asian-iqr'}
+                          else if (d.key == 4) {c = 'indian-iqr'}
+                          else if (d.key == 5) {c = 'other-iqr'}
+                          else {c = 'nan-iqr'}
+                          return c
+                    });
 
 
 
