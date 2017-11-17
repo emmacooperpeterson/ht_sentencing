@@ -115,7 +115,7 @@ function makeChart() {
       .attr("class", "rect")
       .attr("x", function(d) {return yScale(d.value.q3);})
       .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
-      .attr("width", function(d) {return yScale(d.value.max - d.value.median);})
+      .attr("width", function(d) {return yScale(d.value.max - d.value.q3);})
       .attr("height", 12)
       .attr("class", function(d) {
             var c
