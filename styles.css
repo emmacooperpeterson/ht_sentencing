@@ -1,1 +1,10 @@
 svg {background-color: #f4f4f4;}
+sidebar {background-color: 'pink'}
+
+.title {
+  font-size: 20px;
+  font-family: 'Montserrat', sans-serif;}
+
+.side-header {
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;}
