@@ -1,9 +1,9 @@
 //set margins
-var margin = {top: 150, right: 100, bottom: 100, left: 100};
-var width = 1300 - margin.left - margin.top;
-var height = 800 - margin.top - margin.bottom;
-var totalWidth = 1300;
-var totalHeight = 800;
+var margin = {top: 100, right: 100, bottom: 100, left: 100};
+var width = 900 - margin.left - margin.top;
+var height = 700 - margin.top - margin.bottom;
+var totalWidth = 900;
+var totalHeight = 700;
 
 //to convert time variable
 var parseDate = d3.timeParse("%Y");
@@ -45,13 +45,16 @@ function makeChart() {
   svg = d3.select("#chart")
           .append('svg')
           .attr("width", totalWidth)
-          .attr("height", totalHeight);
+          .attr("height", totalHeight)
+          .attr("transform", "translate(" + 4*margin.left + "," + margin.top + ")");
 
   var chart = svg.append('g')
-                  .attr("transform", "translate(" + 4*margin.left + "," + margin.top + ")");
+                  .attr("transform", "translate(" + 50 + "," + 65 + ")");
 
-  var sidebar = svg.append('g')
-                    .attr('transform', 'translate(' + margin.left/2.5 + ',' + margin.top/1.5 + ')')
+  //var sidebar = svg.append('g')
+    //                .attr('transform', 'translate(' + margin.left/2.5 + ',' + margin.top/1.5 + ')')
+
+
   //create scales
   var xScale = d3.scaleBand()
                   .domain(dataset.map(function(d) {return d.judge_race;}))
@@ -59,7 +62,7 @@ function makeChart() {
 
   var yScale = d3.scaleLinear()
                   .domain([d3.max(dataset, function(d) {return d.sentence;}), 0])
-                  .range([width - 3*margin.right, 0]);
+                  .range([width, 0]);
 
 
   //y axis
@@ -68,7 +71,7 @@ function makeChart() {
               .tickSizeInner(0)
               .tickSizeOuter(0)
               .tickPadding(10))
-      .attr('id', 'y-ticks');
+      .attr('id', 'y-ticks')
 
       //gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
       function make_x_gridlines() {
@@ -84,6 +87,7 @@ function makeChart() {
                 .tickFormat("")
             )
 
+
       //remove horizonal line of y axis https://bl.ocks.org/mbostock/3371592
       function customYAxis(g) {
             chart.call(yScale);
@@ -94,6 +98,13 @@ function makeChart() {
 
       chart.append("g")
             .call(customYAxis);
+
+  //y axis labels
+  chart.append("text")
+    .attr("class", "axisLabel")
+    .attr("y", -35)
+    .attr("x", 340)
+    .text("Number of Cases");
 
 
   //judge_race
@@ -205,17 +216,35 @@ function makeChart() {
 
 
   //title
-  svg.append("text")
-      .attr("class", "title")
-      .attr("y", margin.left / 2)
-      .attr("x", margin.left / 2.5)
-      .style("text-anchor", "left")
-      .text('Human Trafficking in the United States: How Do Prison Sentences Vary?');
+  //svg.append("text")
+    //  .attr("class", "title")
+      //.attr("y", margin.left / 2)
+    //  .attr("x", margin.left / 2.5)
+    //  .style("text-anchor", "left")
+    //  .text('Human Trafficking in the United States: How Do Prison Sentences Vary?');
 
 
 //sidebar
-sidebar.append("text")
-    .attr("class", "side-header")
-    .style("text-anchor", "left")
-    .text('Include:');
+//sidebar.append("text")
+  //  .attr("class", "side-header")
+    //.style("text-anchor", "left")
+    //.text('Include:');
+
+
+var options = ['Judge race', 'Judge gender', 'Judge party affiliation',
+                'Defendant race', 'Defendant gender', 'Victim gender',
+                'Victim origin', 'Method of recruitment', 'Type of trafficking',
+                'U.S. region'];
+
+
+
+
+
+
+
+
+
+
+
+
 };
