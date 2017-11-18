@@ -39,20 +39,17 @@ d3.json("ht_sentencing.json", function(error, data) {
 });
 
 function makeChart() {
-  console.log(dataset);
+  //console.log(dataset);
 
-  //set up svg
-  svg = d3.select("#chart")
-          .append('svg')
-          .attr("width", totalWidth)
-          .attr("height", totalHeight)
-          .attr("transform", "translate(" + 4*margin.left + "," + margin.top + ")");
+  //set up svg and chart
+  var svg = d3.select("#chart")
+              .append('svg')
+              .attr("width", totalWidth)
+              .attr("height", totalHeight)
+              .attr("transform", "translate(" + 4*margin.left + "," + margin.top + ")");
 
   var chart = svg.append('g')
-                  .attr("transform", "translate(" + 50 + "," + 65 + ")");
-
-  //var sidebar = svg.append('g')
-    //                .attr('transform', 'translate(' + margin.left/2.5 + ',' + margin.top/1.5 + ')')
+                  .attr("transform", "translate(" + margin.left/2 + "," + margin.left/1.5 + ")");
 
 
   //create scales
@@ -65,7 +62,7 @@ function makeChart() {
                   .range([width, 0]);
 
 
-  //y axis
+  //draw y axis
   chart.append('g')
       .call(d3.axisTop(yScale)
               .tickSizeInner(0)
@@ -73,31 +70,33 @@ function makeChart() {
               .tickPadding(10))
       .attr('id', 'y-ticks')
 
-      //gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-      function make_x_gridlines() {
-        return d3.axisBottom(yScale)
-      }
 
-      //add the gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-      chart.append("g")
-            .attr("class", "grid")
-            .attr("transform", "translate(0," + height + ")")
-            .call(make_x_gridlines()
-                .tickSize(-height)
-                .tickFormat("")
-            )
+  //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+  function make_x_gridlines() {
+    return d3.axisBottom(yScale)
+  }
+
+  //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+  chart.append("g")
+        .attr("class", "grid")
+        .attr("transform", "translate(0," + height + ")")
+        .call(make_x_gridlines()
+            .tickSize(-height)
+            .tickFormat("")
+        )
 
 
-      //remove horizonal line of y axis https://bl.ocks.org/mbostock/3371592
-      function customYAxis(g) {
-            chart.call(yScale);
-            chart.select(".domain").remove(); }
+  //remove horizonal lines from y axis https://bl.ocks.org/mbostock/3371592
+  function customYAxis(g) {
+    chart.call(yScale);
+    chart.select(".domain").remove(); }
 
-      chart.append("g")
-           .call(customYAxis);
+  //run this twice because there are two horizonal lines to remove
+  for (i=0; i<2; i++) {
+    chart.append("g")
+         .call(customYAxis);
+  }
 
-      chart.append("g")
-            .call(customYAxis);
 
   //y axis labels
   chart.append("text")
@@ -107,7 +106,7 @@ function makeChart() {
     .text("Number of Cases");
 
 
-  //judge_race
+  //subset and aggregate data based on judge_race
   var judgeRace = d3.nest()
       .key(function(d) {return d.judge_race;})
       .rollup(function(v) {return {
@@ -119,8 +118,6 @@ function makeChart() {
                 };
               })
       .entries(dataset);
-  console.log(judgeRace);
-
 
 
   //append circles
@@ -144,97 +141,74 @@ function makeChart() {
           return c
     });
 
-    //append max lines
-    chart.selectAll(".rect")
-      .data(judgeRace)
-      .enter()
-      .append("rect")
-      .attr("class", "rect")
-      .attr("x", function(d) {return yScale(d.value.q3);})
-      .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
-      .attr("width", function(d) {return yScale(d.value.max - d.value.q3);})
-      .attr("height", 12)
-      .attr("class", function(d) {
-            var c
-            if (d.key == 0) {c = 'white-max'}
-            else if (d.key == 1) {c = 'black-max'}
-            else if (d.key == 2) {c = 'hisp-max'}
-            else if (d.key == 3) {c = 'asian-max'}
-            else if (d.key == 4) {c = 'indian-max'}
-            else if (d.key == 5) {c = 'other-max'}
-            else {c = 'nan-max'}
-            return c
-      });
+
+  //append max lines
+  chart.selectAll(".rect")
+    .data(judgeRace)
+    .enter()
+    .append("rect")
+    .attr("class", "rect")
+    .attr("x", function(d) {return yScale(d.value.q3);})
+    .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+    .attr("width", function(d) {return yScale(d.value.max - d.value.q3);})
+    .attr("height", 12)
+    .attr("class", function(d) {
+          var c
+          if (d.key == 0) {c = 'white-max'}
+          else if (d.key == 1) {c = 'black-max'}
+          else if (d.key == 2) {c = 'hisp-max'}
+          else if (d.key == 3) {c = 'asian-max'}
+          else if (d.key == 4) {c = 'indian-max'}
+          else if (d.key == 5) {c = 'other-max'}
+          else {c = 'nan-max'}
+          return c
+    });
 
 
-    //append min lines
-    chart.selectAll(".rect")
-          .data(judgeRace)
-          .enter()
-          .append("rect")
-          .attr("class", "rect")
-          .attr("x", function(d) {return yScale(d.value.min);})
-          .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
-          .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
-          .attr("height", 12)
-          .attr("class", function(d) {
-                var c
-                if (d.key == 0) {c = 'white-max'}
-                else if (d.key == 1) {c = 'black-max'}
-                else if (d.key == 2) {c = 'hisp-max'}
-                else if (d.key == 3) {c = 'asian-max'}
-                else if (d.key == 4) {c = 'indian-max'}
-                else if (d.key == 5) {c = 'other-max'}
-                else {c = 'nan-max'}
-                return c
-          });
+  //append min lines
+  chart.selectAll(".rect")
+        .data(judgeRace)
+        .enter()
+        .append("rect")
+        .attr("class", "rect")
+        .attr("x", function(d) {return yScale(d.value.min);})
+        .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+        .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
+        .attr("height", 12)
+        .attr("class", function(d) {
+              var c
+              if (d.key == 0) {c = 'white-max'}
+              else if (d.key == 1) {c = 'black-max'}
+              else if (d.key == 2) {c = 'hisp-max'}
+              else if (d.key == 3) {c = 'asian-max'}
+              else if (d.key == 4) {c = 'indian-max'}
+              else if (d.key == 5) {c = 'other-max'}
+              else {c = 'nan-max'}
+              return c
+        });
 
 
-    //append iqr lines
-    chart.selectAll(".rect")
-          .data(judgeRace)
-          .enter()
-          .append("rect")
-          .attr("class", "rect")
-          .attr("x", function(d) {return yScale(d.value.q1);})
-          .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
-          .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
-          .attr("height", 12)
-          .attr("class", function(d) {
-                var c
-                if (d.key == 0) {c = 'white-iqr'}
-                else if (d.key == 1) {c = 'black-iqr'}
-                else if (d.key == 2) {c = 'hisp-iqr'}
-                else if (d.key == 3) {c = 'asian-iqr'}
-                else if (d.key == 4) {c = 'indian-iqr'}
-                else if (d.key == 5) {c = 'other-iqr'}
-                else {c = 'nan-iqr'}
-                return c
-          });
-
-
-
-
-  //title
-  //svg.append("text")
-    //  .attr("class", "title")
-      //.attr("y", margin.left / 2)
-    //  .attr("x", margin.left / 2.5)
-    //  .style("text-anchor", "left")
-    //  .text('Human Trafficking in the United States: How Do Prison Sentences Vary?');
-
-
-//sidebar
-//sidebar.append("text")
-  //  .attr("class", "side-header")
-    //.style("text-anchor", "left")
-    //.text('Include:');
-
-
-var options = ['Judge race', 'Judge gender', 'Judge party affiliation',
-                'Defendant race', 'Defendant gender', 'Victim gender',
-                'Victim origin', 'Method of recruitment', 'Type of trafficking',
-                'U.S. region'];
+  //append iqr lines
+  chart.selectAll(".rect")
+        .data(judgeRace)
+        .enter()
+        .append("rect")
+        .attr("class", "rect")
+        .attr("x", function(d) {return yScale(d.value.q1);})
+        .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+        .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
+        .attr("height", 12)
+        .attr("class", function(d) {
+              var c
+              if (d.key == 0) {c = 'white-iqr'}
+              else if (d.key == 1) {c = 'black-iqr'}
+              else if (d.key == 2) {c = 'hisp-iqr'}
+              else if (d.key == 3) {c = 'asian-iqr'}
+              else if (d.key == 4) {c = 'indian-iqr'}
+              else if (d.key == 5) {c = 'other-iqr'}
+              else {c = 'nan-iqr'}
+              return c
+        });
 
 
 
@@ -246,5 +220,4 @@ var options = ['Judge race', 'Judge gender', 'Judge party affiliation',
 
 
 
-
-};
+}; //end of makeChart function
