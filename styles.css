@@ -1,6 +1,8 @@
 svg {
   background-color: #f4f4f4;
   display: block;
+  margin-left: -8px;
+  margin-top: -8px;
 }
 
 
