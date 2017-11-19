@@ -35,7 +35,7 @@ d3.json("ht_sentencing.json", function(error, data) {
     d.appointed_by = +d.appointed_by;
   });
 
-  makeChart();
+  makeChart(); //should everything go in one function??
 });
 
 function makeChart() {
@@ -106,6 +106,7 @@ function makeChart() {
             .attr('cy', 50)
             .attr('r', 15)
             .style('fill', '#898989');
+
 
 
   //create scales (based on judge race)
@@ -209,7 +210,7 @@ function makeChart() {
     .append("rect")
     .attr("class", "rect")
     .attr("x", function(d) {return yScale(d.value.q3);})
-    .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+    .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
     .attr("width", function(d) {return yScale(d.value.max - d.value.q3);})
     .attr("height", 12)
     .attr("class", function(d) {
@@ -232,7 +233,7 @@ function makeChart() {
         .append("rect")
         .attr("class", "rect")
         .attr("x", function(d) {return yScale(d.value.min);})
-        .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+        .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
         .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
         .attr("height", 12)
         .attr("class", function(d) {
@@ -255,7 +256,7 @@ function makeChart() {
         .append("rect")
         .attr("class", "rect")
         .attr("x", function(d) {return yScale(d.value.q1);})
-        .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2.3;})
+        .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
         .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
         .attr("height", 12)
         .attr("class", function(d) {
@@ -270,6 +271,31 @@ function makeChart() {
               return c
         });
 
+
+  //legend
+  circles = {525: 'White', 550: 'Black', 575: 'Asian', 600: 'Hispanic'}
+
+  for (var c in circles) {
+  chart.append('circle')
+        .attr('cx', 0)
+        .attr('cy', c)
+        .attr('r', 7)
+        .attr('class', function(d) {
+          var p
+          if (circles[c] == 'White') {p = 'white-med'}
+          else if (circles[c] == 'Black') {p = 'black-med'}
+          else if (circles[c] == 'Asian') {p = 'asian-med'}
+          else {p = 'hisp-med'}
+          return p
+        })
+
+
+  chart.append('text')
+        .attr('x', 10)
+        .attr('y', c*1.01)
+        .attr('class', 'legend-text')
+        .text(circles[c])
+  }
 
 
 
