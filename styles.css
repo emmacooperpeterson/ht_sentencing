@@ -1,10 +1,11 @@
-svg {
-  background-color: #f4f4f4;
-  display: block;
-  margin-left: -8px;
-  margin-top: -8px;
-}
 
+
+#container {
+  background-color: #f4f4f4;
+  /*background-color: pink;*/
+  height: 800px;
+  width: 1300px;
+}
 
 #title {
   font-size: 20px;
@@ -14,39 +15,22 @@ svg {
   top: 40px;
 }
 
+/* SIDEBAR */
+#sidebar {
+  height: 450px;
+  width: 400px;
+  position: absolute;
+  left: 0px;
+  top: 100px;
+  /*background-color: lightblue;*/
+}
+
 .side-header {
   font-size: 14px;
   font-family: 'Montserrat', sans-serif;
   margin-left: 50px;
   margin-top: 20px;
 }
-
-#y-ticks {
-  font-family: 'Courier New', serif;
-  font-size: 14px;
-}
-
-#chart-title {
-  height: 100px;
-  width: 1300px;
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  background-color: #f4f4f4;
-  /*border: 1px solid green;*/
-}
-
-
-#sidebar {
-  height: 700px;
-  width: 400px;
-  position: absolute;
-  left: 0px;
-  top: 100px;
-  background-color: #f4f4f4;
-  /*border: 1px solid orange;*/
-}
-
 
 #boxes {
   list-style-type: none;
@@ -59,17 +43,48 @@ svg {
   font-size: 13px;
 }
 
-li{
+li {
     margin: 8px 0px;
 }
 
+
+/* SMALL CHART */
+
+#small-chart {
+  position: absolute;
+  width: 400px;
+  height: 250px;
+  left: 0px;
+  top: 550px;
+  /*background-color: lightgreen;*/
+}
+
+.chart-desc-text {
+  font-family: 'Courier New', serif;
+  font-size: 10px;
+}
+
+/* CHART */
+
+#chart-title {
+  height: 100px;
+  width: 1300px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  /*background-color: yellow;*/
+
+}
+
+#y-ticks {
+  font-family: 'Courier New', serif;
+  font-size: 14px;
+}
 
 .axisLabel {
   font-family: 'Montserrat', sans-serif;
   font-size: 13px;
 }
-
-
 
 
 /* CIRCLES */

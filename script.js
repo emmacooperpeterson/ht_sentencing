@@ -41,7 +41,7 @@ d3.json("ht_sentencing.json", function(error, data) {
 function makeChart() {
   //console.log(dataset);
 
-  //set up svg and chart
+  //set up svgs and charts
   var svg = d3.select("#chart")
               .append('svg')
               .attr("width", totalWidth)
@@ -50,6 +50,62 @@ function makeChart() {
 
   var chart = svg.append('g')
                   .attr("transform", "translate(" + margin.left/2 + "," + margin.left/1.5 + ")");
+
+  var svg2 = d3.select('#small-chart')
+                      .append('svg')
+                      .attr('width', totalWidth/2.25)
+                      .attr('height', totalHeight/2.8)
+
+  var smallChart = svg2.append('g')
+
+
+
+
+  //draw chart description
+  var xPoints = {75: 'minimum', 125: '25%', 200: 'median',
+                275: '75%', 325: 'maximum'};
+
+  for (var x in xPoints) {
+    smallChart.append('text')
+              .attr('class', 'chart-desc-text')
+              .attr('transform', 'rotate(25' + ',' + x + ',' + 85 + ')')
+              .attr('x', x)
+              .attr('y', 85)
+              .text(xPoints[x])
+
+    smallChart.append('line')
+              .attr('class', 'chart-desc')
+              .attr('x1', x)
+              .attr('y1', 65)
+              .attr('x2', x)
+              .attr('y2', 75)
+              .attr('stroke-width', 1)
+              .attr('stroke', 'black')
+
+  }
+
+  smallChart.append('rect')
+            .attr('class', 'chart-desc')
+            .attr('y', 45)
+            .attr('x', 75)
+            .attr('width', 250)
+            .attr('height', 12)
+            .style('fill', '#d6d6d6');
+
+  smallChart.append('rect')
+            .attr('class', 'chart-desc')
+            .attr('y', 45)
+            .attr('x', 125)
+            .attr('width', 150)
+            .attr('height', 12)
+            .style('fill', '#afafaf');
+
+  smallChart.append('circle')
+            .attr('class', 'chart-desc')
+            .attr('cx', 200)
+            .attr('cy', 50)
+            .attr('r', 15)
+            .style('fill', '#898989');
 
 
   //create scales
