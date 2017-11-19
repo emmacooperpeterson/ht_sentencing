@@ -108,13 +108,16 @@ function makeChart() {
             .style('fill', '#898989');
 
 
-  //create scales
+  //create scales (based on judge race)
+
+  var jR = dataset.filter(function(d) { return !isNaN(d.judge_race) && d.judge_race < 4; });
+
   var xScale = d3.scaleBand()
-                  .domain(dataset.map(function(d) {return d.judge_race;}))
+                  .domain(jR.map(function(d) {return d.judge_race;}))
                   .range([0,height])
 
   var yScale = d3.scaleLinear()
-                  .domain([d3.max(dataset, function(d) {return d.sentence;}), 0])
+                  .domain([d3.max(jR, function(d) {return d.sentence;}), 0])
                   .range([width, 0]);
 
 
@@ -173,7 +176,8 @@ function makeChart() {
                 max: d3.max(v, function(d) {return d.sentence;})
                 };
               })
-      .entries(dataset);
+      .entries(jR);
+      console.log(judgeRace)
 
 
   //append circles
