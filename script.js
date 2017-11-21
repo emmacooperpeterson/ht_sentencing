@@ -180,27 +180,34 @@ function makeChart() {
       .entries(jR);
       console.log(judgeRace)
 
+  var colors = {0: ['rgba(178, 107, 24, 1)', 'rgba(178, 107, 24, 0.7)', 'rgba(178, 107, 24, 0.3)'],
+                1: ['rgba(42, 69, 76, 1)', 'rgba(42, 69, 76, 0.7)', 'rgba(42, 69, 76, 0.3)'],
+                2: ['rgba(94, 93, 64, 1)', 'rgba(94, 93, 64, 0.7)', 'rgba(94, 93, 64, 0.3)'],
+                3: ['rgba(183, 150, 13, 1)', 'rgba(183, 150, 13, 0.7)', 'rgba(183, 150, 13, 0.3)']
+                }
+
 
   //append circles
-  chart.selectAll(".circle")
-    .data(judgeRace)
-    .enter()
-    .append("circle")
-    .attr("class", "circle")
-    .attr("cy", function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
-    .attr("cx", function(d) {return yScale(d.value.median);})
-    .attr("r", 15)
-    .attr("class", function(d) {
-          var c
-          if (d.key == 0) {c = 'white-med'}
-          else if (d.key == 1) {c = 'black-med'}
-          else if (d.key == 2) {c = 'hisp-med'}
-          else if (d.key == 3) {c = 'asian-med'}
-          else if (d.key == 4) {c = 'indian-med'}
-          else if (d.key == 5) {c = 'other-med'}
-          else {c = 'nan-med'}
-          return c
-    });
+  chart.append('g')
+        .attr('id', 'medians')
+        .attr('clip-path', 'url(#chart-area)')
+
+        .selectAll(".circle")
+        .data(judgeRace)
+        .enter()
+        .append("circle")
+        .attr('class', 'boxplot')
+        .attr("cy", function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
+        .attr("cx", function(d) {return yScale(d.value.median);})
+        .attr("r", 15)
+        .attr("fill", function(d) {
+              var c
+              if (d.key == 0) {c = colors[d.key][0]}
+              else if (d.key == 1) {c = colors[d.key][0]}
+              else if (d.key == 2) {c = colors[d.key][0]}
+              else if (d.key == 3) {c = colors[d.key][0]}
+              return c
+        });
 
 
   //append max lines
@@ -208,20 +215,17 @@ function makeChart() {
     .data(judgeRace)
     .enter()
     .append("rect")
-    .attr("class", "rect")
+    .attr('class', 'boxplot')
     .attr("x", function(d) {return yScale(d.value.q3);})
     .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
     .attr("width", function(d) {return yScale(d.value.max - d.value.q3);})
     .attr("height", 12)
-    .attr("class", function(d) {
+    .attr("fill", function(d) {
           var c
-          if (d.key == 0) {c = 'white-max'}
-          else if (d.key == 1) {c = 'black-max'}
-          else if (d.key == 2) {c = 'hisp-max'}
-          else if (d.key == 3) {c = 'asian-max'}
-          else if (d.key == 4) {c = 'indian-max'}
-          else if (d.key == 5) {c = 'other-max'}
-          else {c = 'nan-max'}
+          if (d.key == 0) {c = colors[d.key][2]}
+          else if (d.key == 1) {c = colors[d.key][2]}
+          else if (d.key == 2) {c = colors[d.key][2]}
+          else if (d.key == 3) {c = colors[d.key][2]}
           return c
     });
 
@@ -231,20 +235,17 @@ function makeChart() {
         .data(judgeRace)
         .enter()
         .append("rect")
-        .attr("class", "rect")
+        .attr('class', 'boxplot')
         .attr("x", function(d) {return yScale(d.value.min);})
         .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
         .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
         .attr("height", 12)
-        .attr("class", function(d) {
+        .attr("fill", function(d) {
               var c
-              if (d.key == 0) {c = 'white-max'}
-              else if (d.key == 1) {c = 'black-max'}
-              else if (d.key == 2) {c = 'hisp-max'}
-              else if (d.key == 3) {c = 'asian-max'}
-              else if (d.key == 4) {c = 'indian-max'}
-              else if (d.key == 5) {c = 'other-max'}
-              else {c = 'nan-max'}
+              if (d.key == 0) {c = colors[d.key][2]}
+              else if (d.key == 1) {c = colors[d.key][2]}
+              else if (d.key == 2) {c = colors[d.key][2]}
+              else if (d.key == 3) {c = colors[d.key][2]}
               return c
         });
 
@@ -254,22 +255,29 @@ function makeChart() {
         .data(judgeRace)
         .enter()
         .append("rect")
-        .attr("class", "rect")
+        .attr('class', 'boxplot')
         .attr("x", function(d) {return yScale(d.value.q1);})
         .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
         .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
         .attr("height", 12)
-        .attr("class", function(d) {
+        .attr("fill", function(d) {
               var c
-              if (d.key == 0) {c = 'white-iqr'}
-              else if (d.key == 1) {c = 'black-iqr'}
-              else if (d.key == 2) {c = 'hisp-iqr'}
-              else if (d.key == 3) {c = 'asian-iqr'}
-              else if (d.key == 4) {c = 'indian-iqr'}
-              else if (d.key == 5) {c = 'other-iqr'}
-              else {c = 'nan-iqr'}
+              if (d.key == 0) {c = colors[d.key][1]}
+              else if (d.key == 1) {c = colors[d.key][1]}
+              else if (d.key == 2) {c = colors[d.key][1]}
+              else if (d.key == 3) {c = colors[d.key][1]}
               return c
         });
+
+
+  //clip path for medians
+  chart.append('clipPath')
+        .attr('id', 'chart-area')
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', width)
+        .attr('height', height)
 
 
   //legend
@@ -297,6 +305,7 @@ function makeChart() {
         .text(circles[c])
   }
 
+  //hover tooltips
 
 
 

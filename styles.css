@@ -1,4 +1,12 @@
+.boxplot {
+  -moz-transition: all 0.25s;
+  -o-transition: all 0.25s;
+  -webkit-transition: all 0.25s;
+}
 
+.boxplot:hover {
+  fill: orange;
+}
 
 #container {
   background-color: #f4f4f4;
