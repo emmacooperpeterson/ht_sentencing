@@ -159,3 +159,11 @@ li {
 .asian-iqr {
   fill: rgba(183, 150, 13, 0.7)
 }
+
+
+
+
+.labels {
+  font-family: 'Courier New', serif;
+  font-size: 11px;
+}

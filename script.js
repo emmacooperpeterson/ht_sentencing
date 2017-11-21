@@ -8,6 +8,16 @@ var totalHeight = 700;
 //to convert time variable
 var parseDate = d3.timeParse("%Y");
 
+//boxplot colors
+var colors = {0: ['#a85c0f','#cc9060','#eac6ad'], //orange
+              1: ['#2c4443','#6d7e7d','#b4bdbc'], //teal
+              2: ['#5e5c30','#928e6f','#c8c6b5'], //green
+              3: ['#a0892b','#c3ae72','#e3d6b6'], //yellow
+              4: ['#27333d','#687078','#b1b5ba'], //blue
+              5: ['#5b5b5b','#8f8f8f','#c6c6c6'], //grey
+              6: ['#894229','#b57e6a','#dcbdb2']  //red
+              }
+
 //load data
 d3.json("ht_sentencing.json", function(error, data) {
   if (error) throw error;
@@ -51,12 +61,12 @@ function makeChart() {
   var chart = svg.append('g')
                   .attr("transform", "translate(" + margin.left/2 + "," + margin.left/1.5 + ")");
 
-  var svg2 = d3.select('#small-chart')
+  var svgSmall = d3.select('#small-chart')
                       .append('svg')
                       .attr('width', totalWidth/2.25)
                       .attr('height', totalHeight/2.8)
 
-  var smallChart = svg2.append('g')
+  var smallChart = svgSmall.append('g')
 
 
 
@@ -122,51 +132,6 @@ function makeChart() {
                   .range([width, 0]);
 
 
-  //draw y axis
-  chart.append('g')
-      .call(d3.axisTop(yScale)
-              .tickSizeInner(0)
-              .tickSizeOuter(0)
-              .tickPadding(10))
-      .attr('id', 'y-ticks')
-
-
-  //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-  function make_x_gridlines() {
-    return d3.axisBottom(yScale)
-  }
-
-  //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-  chart.append("g")
-        .attr("class", "grid")
-        .attr("transform", "translate(0," + height + ")")
-        .call(make_x_gridlines()
-            .tickSize(-height)
-            .tickFormat("")
-        )
-
-
-  //remove horizonal lines from y axis https://bl.ocks.org/mbostock/3371592
-  function customYAxis(g) {
-    chart.call(yScale);
-    chart.select(".domain").remove(); }
-
-  //run this twice because there are two horizonal lines to remove
-  for (i=0; i<2; i++) {
-    chart.append("g")
-         .call(customYAxis);
-  }
-
-
-  //y axis labels
-  chart.append("text")
-    .attr("class", "axisLabel")
-    .attr("y", -35)
-    .attr("x", yScale(20))
-    .attr('text-anchor', 'middle')
-    .text("Number of Cases");
-
-
   //subset and aggregate data based on judge_race
   var judgeRace = d3.nest()
       .key(function(d) {return d.judge_race;})
@@ -181,11 +146,7 @@ function makeChart() {
       .entries(jR);
       console.log(judgeRace)
 
-  var colors = {0: ['rgba(178, 107, 24, 1)', 'rgba(178, 107, 24, 0.7)', 'rgba(178, 107, 24, 0.3)'],
-                1: ['rgba(42, 69, 76, 1)', 'rgba(42, 69, 76, 0.7)', 'rgba(42, 69, 76, 0.3)'],
-                2: ['rgba(94, 93, 64, 1)', 'rgba(94, 93, 64, 0.7)', 'rgba(94, 93, 64, 0.3)'],
-                3: ['rgba(183, 150, 13, 1)', 'rgba(183, 150, 13, 0.7)', 'rgba(183, 150, 13, 0.3)']
-                }
+
 
 
   //append max lines
@@ -271,6 +232,72 @@ function makeChart() {
                             return c
                       });
 
+                      //draw y axis
+                      chart.append('g')
+                          .call(d3.axisTop(yScale)
+                                  .tickSizeInner(0)
+                                  .tickSizeOuter(0)
+                                  .tickPadding(10))
+                          .attr('id', 'y-ticks')
+
+
+                      //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+                      function make_x_gridlines() {
+                        return d3.axisBottom(yScale)
+                      }
+
+                      //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+                      chart.append("g")
+                            .attr("class", "grid")
+                            .attr("transform", "translate(0," + height + ")")
+                            .call(make_x_gridlines()
+                                .tickSize(-height)
+                                .tickFormat("")
+                            )
+
+                      //remove horizonal lines from y axis https://bl.ocks.org/mbostock/3371592
+                      function customYAxis(g) {
+                        chart.call(yScale);
+                        chart.select(".domain").remove(); }
+
+                      //run this twice because there are two horizonal lines to remove
+                      for (i=0; i<2; i++) {
+                        chart.append("g")
+                             .call(customYAxis);
+                      }
+
+                      //y axis labels
+                      chart.append("text")
+                        .attr("class", "axisLabel")
+                        .attr("y", -35)
+                        .attr("x", yScale(20))
+                        .attr('text-anchor', 'middle')
+                        .text("Number of Cases");
+
+  //categories
+  var races = {0: 'White', 1: 'Black', 2: 'Hispanic', 3: 'Asian'}
+
+  //append labels
+  chart.selectAll('.rect')
+        .data(judgeRace)
+        .enter()
+        .append('rect')
+        .attr('x', function(d) {return yScale(d.value.max) + 5;})
+        .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+        .attr('width', 50)
+        .attr('height', 14)
+        .style('fill', '#f4f4f4')
+
+  chart.selectAll(".text")
+        .data(judgeRace)
+        .enter()
+        .append("text")
+        .attr('class', 'labels')
+        .attr('x', function(d) {return yScale(d.value.max) + 8;})
+        .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 + 1;})
+        .attr('text-anchor', 'left')
+        .attr('alignment-baseline', 'middle')
+        .text(function(d) {return races[d.key]})
 
 
   //tooltip on
@@ -291,7 +318,6 @@ function makeChart() {
     d3.select('#tooltip').remove();
   })
 
-
   //clip path for medians
   chart.append('clipPath')
         .attr('id', 'chart-area')
@@ -302,32 +328,32 @@ function makeChart() {
         .attr('height', height)
 
 
-  //legend
-  circles = {525: 'White', 550: 'Black', 575: 'Asian', 600: 'Hispanic'}
+  //legend -- NEED TO FIX THIS
+  // circles = {525: 'White', 550: 'Black', 575: 'Asian', 600: 'Hispanic'}
+  //
+  // for (var c in circles) {
+  // chart.append('circle')
+  //       .attr('cx', 0)
+  //       .attr('cy', c)
+  //       .attr('r', 7)
+  //       .attr('class', function(d) {
+  //         var p
+  //         if (circles[c] == 'White') {p = 'white-med'}
+  //         else if (circles[c] == 'Black') {p = 'black-med'}
+  //         else if (circles[c] == 'Asian') {p = 'asian-med'}
+  //         else {p = 'hisp-med'}
+  //         return p
+  //       })
+  //
+  //
+  // chart.append('text')
+  //       .attr('x', 10)
+  //       .attr('y', c*1.01)
+  //       .attr('class', 'legend-text')
+  //       .text(circles[c])
+  // }
 
-  for (var c in circles) {
-  chart.append('circle')
-        .attr('cx', 0)
-        .attr('cy', c)
-        .attr('r', 7)
-        .attr('class', function(d) {
-          var p
-          if (circles[c] == 'White') {p = 'white-med'}
-          else if (circles[c] == 'Black') {p = 'black-med'}
-          else if (circles[c] == 'Asian') {p = 'asian-med'}
-          else {p = 'hisp-med'}
-          return p
-        })
 
-
-  chart.append('text')
-        .attr('x', 10)
-        .attr('y', c*1.01)
-        .attr('class', 'legend-text')
-        .text(circles[c])
-  }
-
-  //hover tooltips
 
 
 
