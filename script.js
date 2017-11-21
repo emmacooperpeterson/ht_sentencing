@@ -162,7 +162,8 @@ function makeChart() {
   chart.append("text")
     .attr("class", "axisLabel")
     .attr("y", -35)
-    .attr("x", 340)
+    .attr("x", yScale(20))
+    .attr('text-anchor', 'middle')
     .text("Number of Cases");
 
 
@@ -185,29 +186,6 @@ function makeChart() {
                 2: ['rgba(94, 93, 64, 1)', 'rgba(94, 93, 64, 0.7)', 'rgba(94, 93, 64, 0.3)'],
                 3: ['rgba(183, 150, 13, 1)', 'rgba(183, 150, 13, 0.7)', 'rgba(183, 150, 13, 0.3)']
                 }
-
-
-  //append circles
-  chart.append('g')
-        .attr('id', 'medians')
-        .attr('clip-path', 'url(#chart-area)')
-
-        .selectAll(".circle")
-        .data(judgeRace)
-        .enter()
-        .append("circle")
-        .attr('class', 'boxplot')
-        .attr("cy", function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
-        .attr("cx", function(d) {return yScale(d.value.median);})
-        .attr("r", 15)
-        .attr("fill", function(d) {
-              var c
-              if (d.key == 0) {c = colors[d.key][0]}
-              else if (d.key == 1) {c = colors[d.key][0]}
-              else if (d.key == 2) {c = colors[d.key][0]}
-              else if (d.key == 3) {c = colors[d.key][0]}
-              return c
-        });
 
 
   //append max lines
@@ -268,6 +246,50 @@ function makeChart() {
               else if (d.key == 3) {c = colors[d.key][1]}
               return c
         });
+
+
+  //append circles
+  var medians = chart.append('g')
+                      .attr('id', 'medians')
+                      .attr('clip-path', 'url(#chart-area)')
+                      .selectAll(".circle")
+                      .data(judgeRace)
+                      .enter()
+                      .append("circle")
+                      .attr('class', 'boxplot')
+                      .attr("cy", function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
+                      .attr("cx", function(d) {return yScale(d.value.median);})
+                      .attr("r", 15)
+                      .attr('stroke-width', 1.5)
+                      .attr('stroke', 'white')
+                      .attr("fill", function(d) {
+                            var c
+                            if (d.key == 0) {c = colors[d.key][0]}
+                            else if (d.key == 1) {c = colors[d.key][0]}
+                            else if (d.key == 2) {c = colors[d.key][0]}
+                            else if (d.key == 3) {c = colors[d.key][0]}
+                            return c
+                      });
+
+
+
+  //tooltip on
+  medians.on('mouseover', function(d) {
+    x = parseFloat(d3.select(this).attr('cx'));
+    y = parseFloat(d3.select(this).attr('cy'));
+
+    chart.append('text')
+          .attr('x', x)
+          .attr('y', y + 30)
+          .attr('id', 'tooltip')
+          .attr('text-anchor', 'middle')
+          .text(d.value.median);
+  });
+
+  //tooltip off
+  medians.on('mouseout', function() {
+    d3.select('#tooltip').remove();
+  })
 
 
   //clip path for medians
