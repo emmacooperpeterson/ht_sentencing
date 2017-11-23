@@ -1,10 +1,10 @@
-.boxplot {
+.plot {
   -moz-transition: all 0.75s;
   -o-transition: all 0.75s;
   -webkit-transition: all 0.75s;
 }
 
-.boxplot:hover {
+.plot:hover {
   fill: black;
 }
 

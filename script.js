@@ -151,10 +151,9 @@ function makeChart() {
   boxplotGroups = chart.selectAll("rect")
                         .data(judgeRace)
                         .enter()
-                        .append("g")
-                        .attr("id", function(d) {return d.key})
-
-  console.log(boxplotGroups);
+                        .append('g')
+                        .attr('id', function(d) {return 'plot' + d.key})
+                        .attr('class', 'plot')
 
   // append min lines
   boxplotGroups.append("rect")
@@ -205,24 +204,23 @@ function makeChart() {
                       });
 
   //append circles
-  var medians = boxplotGroups.append('g')
-                              .attr('id', 'medians')
-                              .attr('clip-path', 'url(#chart-area)')
-                              .append("circle") //why does this work when i initially selected rects and this is a circle
-                              .attr('class', 'boxplot')
-                              .attr("cy", function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
-                              .attr("cx", function(d) {return yScale(d.value.median);})
-                              .attr("r", 15)
-                              .attr('stroke-width', 1.5)
-                              .attr('stroke', 'white')
-                              .attr("fill", function(d) {
-                                      var c
-                                      if (d.key == 0) {c = colors[d.key][0]}
-                                      else if (d.key == 1) {c = colors[d.key][0]}
-                                      else if (d.key == 2) {c = colors[d.key][0]}
-                                      else if (d.key == 3) {c = colors[d.key][0]}
-                                      return c
-                                    });
+  boxplotGroups.append('circle') //why does this work when i initially selected rect?
+                .attr('clip-path', 'url(#chart-area)')
+                .attr('class', 'boxplot')
+                .attr("cy", function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
+                .attr("cx", function(d) {return yScale(d.value.median);})
+                .attr("r", 15)
+                .attr('stroke-width', 1.5)
+                .attr('stroke', 'white')
+                .attr("fill", function(d) {
+                        var c
+                        if (d.key == 0) {c = colors[d.key][0]}
+                        else if (d.key == 1) {c = colors[d.key][0]}
+                        else if (d.key == 2) {c = colors[d.key][0]}
+                        else if (d.key == 3) {c = colors[d.key][0]}
+                        return c
+                      });
+
 
   //clip path for medians
   chart.append('clipPath')
@@ -303,22 +301,25 @@ function makeChart() {
 
 
   //tooltip on
-  medians.on('mouseover', function(d) {
-    x = parseFloat(d3.select(this).attr('cx'));
-    y = parseFloat(d3.select(this).attr('cy'));
+  boxplotGroups.on('mouseover', function(d) {
 
-    chart.append('text')
-          .attr('x', x)
-          .attr('y', y + 30)
-          .attr('id', 'tooltip')
-          .attr('text-anchor', 'middle')
-          .text(d.value.median);
-  });
+    plot = d3.select(this);
+    values = plot._groups[0][0].__data__.value
+
+    for (var v in values) {
+      chart.append('text')
+            .attr('x', yScale(values[v]))
+            .attr('y', 100)
+            .attr('class', 'tooltip')
+            .attr('text-anchor', 'middle')
+            .text(values[v]);
+    }
+    });
 
   //tooltip off
-  medians.on('mouseout', function() {
-    d3.select('#tooltip').remove();
-  })
+  boxplotGroups.on('mouseout', function() {
+    d3.selectAll('.tooltip').remove();
+   })
 
 
 
