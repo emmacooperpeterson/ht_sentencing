@@ -147,132 +147,134 @@ function makeChart() {
       console.log(judgeRace)
 
 
+  //create boxplot groups
+  boxplotGroups = chart.selectAll("rect")
+                        .data(judgeRace)
+                        .enter()
+                        .append("g")
+                        .attr("id", function(d) {return d.key})
 
+  console.log(boxplotGroups);
 
-  //append max lines
-  chart.selectAll(".rect")
-    .data(judgeRace)
-    .enter()
-    .append("rect")
-    .attr('class', 'boxplot')
-    .attr("x", function(d) {return yScale(d.value.q3);})
-    .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
-    .attr("width", function(d) {return yScale(d.value.max - d.value.q3);})
-    .attr("height", 12)
-    .attr("fill", function(d) {
-          var c
-          if (d.key == 0) {c = colors[d.key][2]}
-          else if (d.key == 1) {c = colors[d.key][2]}
-          else if (d.key == 2) {c = colors[d.key][2]}
-          else if (d.key == 3) {c = colors[d.key][2]}
-          return c
-    });
-
-
-  //append min lines
-  chart.selectAll(".rect")
-        .data(judgeRace)
-        .enter()
-        .append("rect")
-        .attr('class', 'boxplot')
-        .attr("x", function(d) {return yScale(d.value.min);})
-        .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
-        .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
-        .attr("height", 12)
-        .attr("fill", function(d) {
-              var c
-              if (d.key == 0) {c = colors[d.key][2]}
-              else if (d.key == 1) {c = colors[d.key][2]}
-              else if (d.key == 2) {c = colors[d.key][2]}
-              else if (d.key == 3) {c = colors[d.key][2]}
-              return c
-        });
-
-
-  //append iqr lines
-  chart.selectAll(".rect")
-        .data(judgeRace)
-        .enter()
-        .append("rect")
-        .attr('class', 'boxplot')
-        .attr("x", function(d) {return yScale(d.value.q1);})
-        .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
-        .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
-        .attr("height", 12)
-        .attr("fill", function(d) {
-              var c
-              if (d.key == 0) {c = colors[d.key][1]}
-              else if (d.key == 1) {c = colors[d.key][1]}
-              else if (d.key == 2) {c = colors[d.key][1]}
-              else if (d.key == 3) {c = colors[d.key][1]}
-              return c
-        });
-
-
-  //append circles
-  var medians = chart.append('g')
-                      .attr('id', 'medians')
-                      .attr('clip-path', 'url(#chart-area)')
-                      .selectAll(".circle")
-                      .data(judgeRace)
-                      .enter()
-                      .append("circle")
-                      .attr('class', 'boxplot')
-                      .attr("cy", function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
-                      .attr("cx", function(d) {return yScale(d.value.median);})
-                      .attr("r", 15)
-                      .attr('stroke-width', 1.5)
-                      .attr('stroke', 'white')
-                      .attr("fill", function(d) {
-                            var c
-                            if (d.key == 0) {c = colors[d.key][0]}
-                            else if (d.key == 1) {c = colors[d.key][0]}
-                            else if (d.key == 2) {c = colors[d.key][0]}
-                            else if (d.key == 3) {c = colors[d.key][0]}
-                            return c
+  // append min lines
+  boxplotGroups.append("rect")
+                .attr('class', 'boxplot')
+                .attr("x", function(d) {return yScale(d.value.min);})
+                .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+                .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
+                .attr("height", 12)
+                .attr("fill", function(d) {
+                        var c
+                        if (d.key == 0) {c = colors[d.key][2]}
+                        else if (d.key == 1) {c = colors[d.key][2]}
+                        else if (d.key == 2) {c = colors[d.key][2]}
+                        else if (d.key == 3) {c = colors[d.key][2]}
+                        return c
                       });
 
-                      //draw y axis
-                      chart.append('g')
-                          .call(d3.axisTop(yScale)
-                                  .tickSizeInner(0)
-                                  .tickSizeOuter(0)
-                                  .tickPadding(10))
-                          .attr('id', 'y-ticks')
+  //append max lines
+  boxplotGroups.append("rect")
+                .attr('class', 'boxplot')
+                .attr("x", function(d) {return yScale(d.value.q3);})
+                .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+                .attr("width", function(d) {return yScale(d.value.max - d.value.q3);})
+                .attr("height", 12)
+                .attr("fill", function(d) {
+                        var c
+                        if (d.key == 0) {c = colors[d.key][2]}
+                        else if (d.key == 1) {c = colors[d.key][2]}
+                        else if (d.key == 2) {c = colors[d.key][2]}
+                        else if (d.key == 3) {c = colors[d.key][2]}
+                        return c
+                      });
+
+  //append iqr lines
+  boxplotGroups.append("rect")
+                .attr('class', 'boxplot')
+                .attr("x", function(d) {return yScale(d.value.q1);})
+                .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+                .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
+                .attr("height", 12)
+                .attr("fill", function(d) {
+                        var c
+                        if (d.key == 0) {c = colors[d.key][1]}
+                        else if (d.key == 1) {c = colors[d.key][1]}
+                        else if (d.key == 2) {c = colors[d.key][1]}
+                        else if (d.key == 3) {c = colors[d.key][1]}
+                        return c
+                      });
+
+  //append circles
+  var medians = boxplotGroups.append('g')
+                              .attr('id', 'medians')
+                              .attr('clip-path', 'url(#chart-area)')
+                              .append("circle") //why does this work when i initially selected rects and this is a circle
+                              .attr('class', 'boxplot')
+                              .attr("cy", function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
+                              .attr("cx", function(d) {return yScale(d.value.median);})
+                              .attr("r", 15)
+                              .attr('stroke-width', 1.5)
+                              .attr('stroke', 'white')
+                              .attr("fill", function(d) {
+                                      var c
+                                      if (d.key == 0) {c = colors[d.key][0]}
+                                      else if (d.key == 1) {c = colors[d.key][0]}
+                                      else if (d.key == 2) {c = colors[d.key][0]}
+                                      else if (d.key == 3) {c = colors[d.key][0]}
+                                      return c
+                                    });
+
+  //clip path for medians
+  chart.append('clipPath')
+        .attr('id', 'chart-area')
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', width)
+        .attr('height', height)
 
 
-                      //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-                      function make_x_gridlines() {
-                        return d3.axisBottom(yScale)
-                      }
+  //draw y axis
+  chart.append('g')
+      .call(d3.axisTop(yScale)
+              .tickSizeInner(0)
+              .tickSizeOuter(0)
+              .tickPadding(10))
+      .attr('id', 'y-ticks')
 
-                      //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-                      chart.append("g")
-                            .attr("class", "grid")
-                            .attr("transform", "translate(0," + height + ")")
-                            .call(make_x_gridlines()
-                                .tickSize(-height)
-                                .tickFormat("")
-                            )
 
-                      //remove horizonal lines from y axis https://bl.ocks.org/mbostock/3371592
-                      function customYAxis(g) {
-                        chart.call(yScale);
-                        chart.select(".domain").remove(); }
+  //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+  function make_x_gridlines() {
+    return d3.axisBottom(yScale)
+  }
 
-                      //run this twice because there are two horizonal lines to remove
-                      for (i=0; i<2; i++) {
-                        chart.append("g")
-                             .call(customYAxis);
-                      }
+  //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+  chart.append("g")
+        .attr("class", "grid")
+        .attr("transform", "translate(0," + height + ")")
+        .call(make_x_gridlines()
+            .tickSize(-height)
+            .tickFormat("")
+        )
 
-                      //y axis labels
-                      chart.append("text")
-                        .attr("class", "axisLabel")
-                        .attr("y", -35)
-                        .attr("x", yScale(20))
-                        .attr('text-anchor', 'middle')
-                        .text("Number of Cases");
+  //remove horizonal lines from y axis https://bl.ocks.org/mbostock/3371592
+  function customYAxis(g) {
+    chart.call(yScale);
+    chart.select(".domain").remove(); }
+
+  //run this twice because there are two horizonal lines to remove
+  for (i=0; i<2; i++) {
+    chart.append("g")
+         .call(customYAxis);
+  }
+
+  //y axis labels
+  chart.append("text")
+    .attr("class", "axisLabel")
+    .attr("y", -35)
+    .attr("x", yScale(20))
+    .attr('text-anchor', 'middle')
+    .text("Number of Cases");
 
   //categories
   var races = {0: 'White', 1: 'Black', 2: 'Hispanic', 3: 'Asian'}
@@ -318,14 +320,7 @@ function makeChart() {
     d3.select('#tooltip').remove();
   })
 
-  //clip path for medians
-  chart.append('clipPath')
-        .attr('id', 'chart-area')
-        .append('rect')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', width)
-        .attr('height', height)
+
 
 
   //legend -- NEED TO FIX THIS
