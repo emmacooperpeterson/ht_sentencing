@@ -304,15 +304,17 @@ function makeChart() {
   boxplotGroups.on('mouseover', function(d) {
 
     plot = d3.select(this);
-    values = plot._groups[0][0].__data__.value
 
-    for (var v in values) {
+    xValues = plot._groups[0][0].__data__.value
+    y = parseFloat(plot._groups[0][0].lastChild.attributes[2].value)
+
+    for (var v in xValues) {
       chart.append('text')
-            .attr('x', yScale(values[v]))
-            .attr('y', 100)
+            .attr('x', yScale(xValues[v]))
+            .attr('y', y + 30)
             .attr('class', 'tooltip')
             .attr('text-anchor', 'middle')
-            .text(values[v]);
+            .text(xValues[v]);
     }
     });
 
