@@ -15,6 +15,25 @@ var colors = {0: ['#a85c0f','#cc9060','#eac6ad'], //orange
               6: ['#894229','#b57e6a','#dcbdb2']  //red
               }
 
+//set up svgs and charts
+var svg = d3.select("#chart")
+            .append('svg')
+            .attr("width", totalWidth)
+            .attr("height", totalHeight)
+            .attr("transform", "translate(" + 4*margin.left + "," + margin.top + ")");
+
+var chart = svg.append('g')
+                .attr("transform", "translate(" + margin.left/2 + "," + margin.left/1.5 + ")");
+
+var svgSmall = d3.select('#small-chart')
+                    .append('svg')
+                    .attr('width', totalWidth/2.25)
+                    .attr('height', totalHeight/2.8)
+
+var smallChart = svgSmall.append('g')
+
+
+
 //load data
 d3.json("ht_sentencing.json", function(error, data) {
   if (error) throw error;
@@ -37,7 +56,7 @@ d3.json("ht_sentencing.json", function(error, data) {
   });
 
   drawSideChart();
-  drawInitialChart();
+  drawChart();
 
 }); //end load data
 
@@ -62,7 +81,7 @@ function getData() {
                 };
               })
       .entries(filteredData);
-      console.log(nestedData)
+
   return nestedData;
 
 } //end getData
@@ -71,13 +90,6 @@ function getData() {
 
 
 function drawSideChart() {
-
-  var svgSmall = d3.select('#small-chart')
-                      .append('svg')
-                      .attr('width', totalWidth/2.25)
-                      .attr('height', totalHeight/2.8)
-
-  var smallChart = svgSmall.append('g')
 
   var xPoints = {75: 'minimum', 125: '25%', 200: 'median',
                 275: '75%', 325: 'maximum'};
@@ -135,20 +147,9 @@ function drawSideChart() {
 
 
 
-function drawInitialChart() {
+function drawChart() {
 
   finalData = getData();
-
-  //set up svgs and charts
-  var svg = d3.select("#chart")
-              .append('svg')
-              .attr("width", totalWidth)
-              .attr("height", totalHeight)
-              .attr("transform", "translate(" + 4*margin.left + "," + margin.top + ")");
-
-  var chart = svg.append('g')
-                  .attr("transform", "translate(" + margin.left/2 + "," + margin.left/1.5 + ")");
-
 
   //create scales (based on selectedVariable)
   var xScale = d3.scaleBand()
@@ -158,6 +159,9 @@ function drawInitialChart() {
   var yScale = d3.scaleLinear()
                   .domain([d3.max(finalData, function(d) {return d.value.max;}), 0])
                   .range([width, 0]);
+
+  drawGrid(yScale, chart);
+
 
   //create boxplot groups
   boxplotGroups = chart.selectAll("rect")
@@ -169,6 +173,13 @@ function drawInitialChart() {
 
   //append min lines
   boxplotGroups.append("rect")
+                .attr('x', function(d) {return d.value.q1})
+                .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+                .attr('height', 12)
+                .attr('width', 0)
+                .transition()
+                .duration(1000)
+                .delay(2000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.min);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
@@ -178,6 +189,13 @@ function drawInitialChart() {
 
   //append max lines
   boxplotGroups.append("rect")
+                .attr('x', function(d) {return d.value.q3})
+                .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+                .attr('height', 12)
+                .attr('width', 0)
+                .transition()
+                .duration(1000)
+                .delay(2000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.q3);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
@@ -185,17 +203,45 @@ function drawInitialChart() {
                 .attr("height", 12)
                 .attr("fill", function(d) {return colors[d.key][2]});
 
-  //append iqr lines
+  //append q1 lines
   boxplotGroups.append("rect")
+                .attr('x', function(d) {return d.value.median})
+                .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+                .attr('height', 12)
+                .attr('width', 0)
+                .transition()
+                .duration(1000)
+                .delay(1000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.q1);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
-                .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
+                .attr("width", function(d) {return yScale(d.value.median - d.value.q1);})
+                .attr("height", 12)
+                .attr("fill", function(d) {return colors[d.key][1]});
+
+  //append q3 lines
+  boxplotGroups.append("rect")
+                .attr('x', function(d) {return d.value.median})
+                .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+                .attr('height', 12)
+                .attr('width', 0)
+                .transition()
+                .duration(1000)
+                .delay(1000)
+                .attr('class', 'boxplot')
+                .attr("x", function(d) {return yScale(d.value.median);})
+                .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+                .attr("width", function(d) {return yScale(d.value.q3 - d.value.median);})
                 .attr("height", 12)
                 .attr("fill", function(d) {return colors[d.key][1]});
 
   //append circles
   boxplotGroups.append('circle') //why does this work when i initially selected rect?
+                .attr('cy', function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
+                .attr('cx', -10)
+                .attr('r', 15)
+                .transition()
+                .duration(1000)
                 .attr('clip-path', 'url(#chart-area)')
                 .attr('class', 'boxplot')
                 .attr("cy", function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
@@ -216,50 +262,44 @@ function drawInitialChart() {
         .attr('height', height)
 
 
-  //draw y axis
-  chart.append('g')
-      .call(d3.axisTop(yScale)
-              .tickSizeInner(0)
-              .tickSizeOuter(0)
-              .tickPadding(10))
-      .attr('id', 'y-ticks')
+  appendLabels(xScale, yScale);
 
 
-  //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-  function make_x_gridlines() {
-    return d3.axisBottom(yScale)
-  }
+  //tooltip on
+  boxplotGroups.on('mouseover', function(d) {
 
-  //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-  chart.append("g")
-        .attr("class", "grid")
-        .attr("transform", "translate(0," + height + ")")
-        .call(make_x_gridlines()
-            .tickSize(-height)
-            .tickFormat("")
-        )
+    plot = d3.select(this);
 
-  //remove horizonal lines from y axis https://bl.ocks.org/mbostock/3371592
-  function customYAxis(g) {
-    chart.call(yScale);
-    chart.select(".domain").remove(); }
+    xValues = plot._groups[0][0].__data__.value
+    y = parseFloat(plot._groups[0][0].lastChild.attributes[0].value)
 
-  //run this twice because there are two horizonal lines to remove
-  for (i=0; i<2; i++) {
-    chart.append("g")
-         .call(customYAxis);
-  }
+    for (var v in xValues) {
+      label = String(xValues[v])
 
-  //y axis labels
-  chart.append("text")
-    .attr("class", "axisLabel")
-    .attr("y", -35)
-    .attr("x", yScale(20))
-    .attr('text-anchor', 'middle')
-    .text("Number of Cases");
+      chart.append('text')
+            .attr('x', yScale(xValues[v]))
+            .attr('y', y + 30)
+            .attr('class', 'tooltip')
+            .attr('text-anchor', 'middle')
+            .text(label.slice(0,4));
+    }
+    });
+
+  //tooltip off
+  boxplotGroups.on('mouseout', function() {
+    d3.selectAll('.tooltip').remove();
+   })
+
+}; //end drawChart
+
+
+
+
+
+function appendLabels(xScale, yScale) {
 
   //categories
-  var races = {0: 'White', 1: 'Black', 2: 'Hispanic', 3: 'Asian'}
+  var races = {0: 'White', 1: 'Black', 2: 'Hispanic', 3: 'Asian', 4: 'Indian', 5: 'Other'}
   var genders = {0: 'Male', 1: 'Female'}
   var parties = {0: 'Democrat', 1: 'Republican'}
   var methods = {0: 'Unknown/other', 1: 'Online', 2: 'Kidnap', 3: 'Face-to-Face',
@@ -314,33 +354,84 @@ function drawInitialChart() {
 
         }) //end text
 
-
-  //tooltip on
-  boxplotGroups.on('mouseover', function(d) {
-
-    plot = d3.select(this);
-
-    xValues = plot._groups[0][0].__data__.value
-    y = parseFloat(plot._groups[0][0].lastChild.attributes[2].value)
-
-    for (var v in xValues) {
-      chart.append('text')
-            .attr('x', yScale(xValues[v]))
-            .attr('y', y + 30)
-            .attr('class', 'tooltip')
-            .attr('text-anchor', 'middle')
-            .text(xValues[v]);
-    }
-    });
-
-  //tooltip off
-  boxplotGroups.on('mouseout', function() {
-    d3.selectAll('.tooltip').remove();
-   })
+}; //end appendLabels
 
 
 
 
+function drawGrid(yScale, chart) {
+
+  //draw y axis
+  var grid = chart.append('g')
+                  .attr('id', 'grid')
+
+  grid.append('g')
+      .call(d3.axisTop(yScale)
+              .tickSizeInner(0)
+              .tickSizeOuter(0)
+              .tickPadding(10))
+      .attr('id', 'grid-text')
 
 
-}; //end drawInitialChart
+  //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+  function make_x_gridlines() {
+    return d3.axisBottom(yScale)
+  }
+
+  //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+  grid.append("g")
+        .attr("class", "lines")
+        .attr("transform", "translate(0," + height + ")")
+        .call(make_x_gridlines()
+            .tickSize(-height)
+            .tickFormat("")
+        )
+
+  //remove horizonal lines from y axis https://bl.ocks.org/mbostock/3371592
+  function customYAxis(g) {
+    grid.call(yScale);
+    grid.select(".domain").remove(); }
+
+  //run this twice because there are two horizonal lines to remove
+  for (i=0; i<2; i++) {
+    grid.append("g")
+         .call(customYAxis);
+  }
+
+  //y axis labels
+  grid.append("text")
+    .attr("class", "axisLabel")
+    .attr("y", -35)
+    .attr("x", yScale(20))
+    .attr('text-anchor', 'middle')
+    .text("Number of Cases");
+
+}; //end drawGrid
+
+
+
+
+
+
+
+//update
+var variableMenu = d3.select("#include-menu")
+console.log(variableMenu)
+
+variableMenu.on('change', function() {
+  var selectedVariable = d3.select('input[name="variable"]:checked')
+                            .property("value");
+  var boxplots = d3.selectAll('.plot')
+  var grid = d3.select('#grid')
+  var labs = d3.selectAll('.labels')
+
+  boxplots.attr('y', -width)
+          .remove();
+
+  grid.remove();
+
+  labs.remove();
+
+  drawChart();
+
+})
