@@ -15,6 +15,13 @@ var colors = {0: ['#a85c0f','#cc9060','#eac6ad'], //orange
               6: ['#894229','#b57e6a','#dcbdb2']  //red
               }
 
+var xLabels = {'judge_race': 'Judge Race', 'judge_gender': 'Judge Gender',
+                'appointed_by': 'Judge Party Affiliation',
+                'def_race': 'Defendant Race', 'def_gender': 'Defendant Gender',
+                'vic_gender': 'Victim Gender', 'recruit': 'Method of Recruitment',
+                'type': 'Type of Trafficking', 'region': 'U.S. Region',
+                'year_group': 'Year'}
+
 //set up svgs and charts
 var svg = d3.select("#chart")
             .append('svg')
@@ -429,13 +436,33 @@ function drawGrid(yScale, chart) {
          .call(customYAxis);
   }
 
-  //y axis labels
+  //y axis label
   grid.append("text")
     .attr("class", "axisLabel")
     .attr("y", -35)
     .attr("x", yScale(20))
     .attr('text-anchor', 'middle')
     .text("Number of Cases");
+
+  //x axis label
+  grid.append("text")
+    .attr('transform', 'rotate(-90' + ',' + -20 + ',' + height/2 + ')')
+    .attr("y", height/2)
+    .attr("x", -20)
+    .style('fill', '#f4f4f4')
+    .transition()
+    .duration(1500)
+    .attr("class", "axisLabel")
+    .attr('transform', 'rotate(-90' + ',' + -20 + ',' + height/2 + ')')
+    .attr("y", height/2)
+    .attr("x", -20)
+    .style('fill', 'black')
+    .attr('text-anchor', 'middle')
+    .text(function() {
+      var variable = d3.select('input[name = "variable"]:checked')
+                                .property("value");
+      return xLabels[variable]
+    });
 
 }; //end drawGrid
 
