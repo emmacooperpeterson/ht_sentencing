@@ -25,16 +25,7 @@ d3.json("ht_sentencing.json", function(error, data) {
   dataset = data;
 
   dataset.forEach(function (d) {
-    d.case_id = +d.case_id;
-    d.judge_id = +d.judge_id;
-    d.first_name = d.first_name;
-    d.year = parseDate(d.year);
     d.sentence = +d.sentence;
-    d.labor = +d.labor;
-    d.adult_sex = +d.adult_sex;
-    d.minor_sex = +d.minor_sex;
-    d.male_vics = +d.male_vics;
-    d.female_vics = +d.female_vics;
     d.foreign_vics = +d.foreign_vics;
     d.recruit = +d.recruit;
     d.region = +d.region;
@@ -43,7 +34,11 @@ d3.json("ht_sentencing.json", function(error, data) {
     d.judge_race = +d.judge_race;
     d.judge_gender = +d.judge_gender;
     d.appointed_by = +d.appointed_by;
+    d.type = +d.type;
+    d.year_group = +d.year_group;
+    d.vic_gender = +d.vic_gender;
   });
+
 
   //getData();
   makeChart(); //should everything go in one function??
@@ -53,10 +48,11 @@ d3.json("ht_sentencing.json", function(error, data) {
 
 
 function getData() {
+  //subset data based on selected variable and get 5-number summary
+
   selectedVariable = d3.select('input[name="variable"]:checked').property("value");
   console.log(selectedVariable)
 
-  //subset and aggregate data based on judge_race
   var filteredData = dataset.filter(function(d) { return !isNaN(d[selectedVariable]) && d[selectedVariable] < 4; });
   var nestedData = d3.nest()
       .key(function(d) {return d[selectedVariable];})

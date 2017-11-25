@@ -26,11 +26,9 @@ def csv_to_json(csv_file, json_file, columns):
 if __name__ == '__main__':
     csv_file = '../joined_data/ht_sentencing.csv'
     json_file = '../ht_sentencing.json'
-    columns = ('case_id', 'year', 'minor_sex',
-                'adult_sex', 'labor', 'recruit',
-                'female_vics', 'male_vics', 'foreign_vics',
-                'region', 'judge_id', 'judge_gender', 'judge_race',
+    columns = ('recruit', 'foreign_vics', 'region',
+                'judge_gender', 'judge_race',
                 'appointed_by', 'def_gender', 'def_race',
-                'sentence', 'first_name')
+                'sentence', 'vic_gender', 'type', 'year_group')
 
     csv_to_json(csv_file, json_file, columns)
