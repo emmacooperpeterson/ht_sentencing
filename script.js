@@ -107,8 +107,7 @@ function getScales(finalData) {
                   .domain([d3.max(finalData, function(d) {return d.value.max;}), 0])
                   .range([width, 0]);
 
-  return [xScale, yScale]
-
+  return {'x': xScale, 'y': yScale}
 } //end getScales
 
 
@@ -174,16 +173,13 @@ function drawSideChart() {
 
 
 function drawChart() {
-
   finalData = getData();
 
   scales = getScales(finalData);
-
-  xScale = scales[0]
-  yScale = scales[1]
+  xScale = scales.x
+  yScale = scales.y
 
   drawGrid(yScale, chart);
-
 
   //create boxplot groups
   boxplotGroups = chart.selectAll("rect")
@@ -207,7 +203,8 @@ function drawChart() {
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
                 .attr("height", 12)
-                .attr("fill", function(d) {return colors[d.key][2]});
+                .attr("fill", function(d) {return colors[d.key][2]})
+                .attr('opacity', 1);
 
   //append max lines
   boxplotGroups.append("rect")
@@ -223,7 +220,8 @@ function drawChart() {
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {return yScale(d.value.max - d.value.q3);})
                 .attr("height", 12)
-                .attr("fill", function(d) {return colors[d.key][2]});
+                .attr("fill", function(d) {return colors[d.key][2]})
+                .attr('opacity', 1);
 
   //append q1 lines
   boxplotGroups.append("rect")
@@ -239,7 +237,8 @@ function drawChart() {
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {return yScale(d.value.median - d.value.q1);})
                 .attr("height", 12)
-                .attr("fill", function(d) {return colors[d.key][1]});
+                .attr("fill", function(d) {return colors[d.key][1]})
+                .attr('opacity', 1);
 
   //append q3 lines
   boxplotGroups.append("rect")
@@ -255,7 +254,8 @@ function drawChart() {
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {return yScale(d.value.q3 - d.value.median);})
                 .attr("height", 12)
-                .attr("fill", function(d) {return colors[d.key][1]});
+                .attr("fill", function(d) {return colors[d.key][1]})
+                .attr('opacity', 1);
 
   //append circles
   boxplotGroups.append('circle') //why does this work when i initially selected rect?
@@ -271,8 +271,8 @@ function drawChart() {
                 .attr("r", 15)
                 .attr('stroke-width', 1.5)
                 .attr('stroke', 'white')
-                .attr("fill", function(d) {return colors[d.key][0]});
-
+                .attr("fill", function(d) {return colors[d.key][0]})
+                .attr('opacity', 1);
 
   //clip path for medians
   chart.append('clipPath')
@@ -286,31 +286,99 @@ function drawChart() {
 
   appendLabels(xScale, yScale);
 
-
   //tooltip on
   boxplotGroups.on('mouseover', function(d) {
-
     plot = d3.select(this);
-
     xValues = plot._groups[0][0].__data__.value
     y = parseFloat(plot._groups[0][0].lastChild.attributes[0].value)
 
     for (var v in xValues) {
       label = String(xValues[v])
 
+      chart.append('rect')
+            .attr('class', 'tooltip')
+            .attr('x', yScale(xValues[v]))
+            .attr('y', function() {
+              if (v == 'q1') {
+                if (xValues.q1 == xValues.q3) {return y - 53}
+                else {return y - 33}
+              }
+
+              else if (v == 'q3') {return y - 33}
+
+              else if (v == 'median') {
+                if (xValues.min == xValues.median) {return y + 37}
+                else {return y+17}
+              }
+
+              else {return y + 17}
+            })
+            .attr('width', 65)
+            .attr('height', 18)
+            .attr('fill', '#f4f4f4')
+            .attr('opacity', 0)
+            .transition()
+            .duration(500)
+            .attr('x', yScale(xValues[v]))
+            .attr('y', function() {
+              if (v == 'q1') {
+                if (xValues.q1 == xValues.q3) {return y - 53}
+                else {return y - 33}
+              }
+
+              else if (v == 'q3') {return y - 33}
+
+              else if (v == 'median') {
+                if (xValues.min == xValues.median) {return y + 37}
+                else {return y+17}
+              }
+
+              else {return y + 17}
+            })
+            .attr('width', 65)
+            .attr('height', 18)
+            .attr('fill', '#f4f4f4')
+            .attr('opacity', 1)
+
       chart.append('text')
             .attr('x', yScale(xValues[v]))
-            .attr('y', y + 30)
+            .attr('y', y)
+            .attr('opacity', 0)
+            .transition()
+            .duration(500)
+            .attr('x', yScale(xValues[v]))
+            .attr('y', function() {
+              if (v == 'q1') {
+                if (xValues.q1 == xValues.q3) {return y - 40}
+                else {return y - 20}
+              }
+
+              else if (v == 'q3') {return y - 20}
+
+              else if (v == 'median') {
+                if (xValues.min == xValues.median) {return y + 50}
+                else {return y + 30}
+              }
+
+              else {return y + 30}
+            })
+            .attr('opacity', 1)
             .attr('class', 'tooltip')
-            .attr('text-anchor', 'middle')
-            .text(label.slice(0,4));
+            .text(v + ': ' + label.slice(0,4));
     }
     });
 
   //tooltip off
   boxplotGroups.on('mouseout', function() {
-    d3.selectAll('.tooltip').remove();
+    d3.selectAll('.tooltip')
+      .transition()
+      .duration(500)
+      .attr('fill', '#f4f4f4')
+      .attr('opacity', 0)
+      .remove();
    })
+
+
 
 }; //end drawChart
 
@@ -319,7 +387,6 @@ function drawChart() {
 
 
 function appendLabels(xScale, yScale) {
-
   //categories
   var races = {0: 'White', 1: 'Black', 2: 'Hispanic', 3: 'Asian', 4: 'Indian', 5: 'Other'}
   var genders = {0: 'Male', 1: 'Female'}
@@ -327,6 +394,7 @@ function appendLabels(xScale, yScale) {
   var methods = {0: 'Unknown/other', 1: 'Online', 2: 'Kidnap', 3: 'Face-to-Face',
                 4: 'Telephone', 5: 'Family', 6: 'Newspaper'}
   var types = {1: 'Labor trafficking', 2: 'Adult sex trafficking', 3: 'Minor Sex Trafficking'}
+  var regions = {0: 'South', 1: 'Northeast', 2: 'West', 3: 'Midwest'}
   var years = {1: '2000-2003', 2: '2004-2007', 3: '2008-2011', 4: '2012-2015'}
 
   //append labels
@@ -383,11 +451,15 @@ function appendLabels(xScale, yScale) {
           }
 
           else if (selectedVariable == 'type') {
-            return types[d.keys]
+            return types[d.keys-1]
+          }
+
+          else if (selectedVariable == 'region') {
+            return regions[d.keys]
           }
 
           else if (selectedVariable == 'year_group') {
-            return years[d.keys]
+            return years[d.keys-1]
           }
 
         }) //end text
@@ -412,9 +484,7 @@ function drawGrid(yScale, chart) {
 
 
   //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-  function make_x_gridlines() {
-    return d3.axisBottom(yScale)
-  }
+  function make_x_gridlines() {return d3.axisBottom(yScale)}
 
   //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
   grid.append("g")
@@ -422,13 +492,13 @@ function drawGrid(yScale, chart) {
         .attr("transform", "translate(0," + height + ")")
         .call(make_x_gridlines()
             .tickSize(-height)
-            .tickFormat("")
-        )
+            .tickFormat(""))
 
   //remove horizonal lines from y axis https://bl.ocks.org/mbostock/3371592
   function customYAxis(g) {
     grid.call(yScale);
-    grid.select(".domain").remove(); }
+    grid.select(".domain").remove();
+  }
 
   //run this twice because there are two horizonal lines to remove
   for (i=0; i<2; i++) {
@@ -442,7 +512,7 @@ function drawGrid(yScale, chart) {
     .attr("y", -35)
     .attr("x", yScale(20))
     .attr('text-anchor', 'middle')
-    .text("Number of Cases");
+    .text("Length of Sentence (in years)");
 
   //x axis label
   grid.append("text")
@@ -453,6 +523,7 @@ function drawGrid(yScale, chart) {
     .transition()
     .duration(1500)
     .attr("class", "axisLabel")
+    .attr('id', 'x-label')
     .attr('transform', 'rotate(-90' + ',' + -20 + ',' + height/2 + ')')
     .attr("y", height/2)
     .attr("x", -20)
@@ -468,38 +539,38 @@ function drawGrid(yScale, chart) {
 
 
 
-
-function sortPlots(xScale, selectedVariable) {
-
-  chart.selectAll('.plot')
-        .sort(function(a, b) {
-            if (selectedVariable == 'ascending') {
-              return d3.ascending(a.value.median, b.value.median)
-            }
-            else if (selectedVariable == 'descending') {
-              return d3.descending(a.value.median, b.value.median)
-            }
-        })
-        .transition()
-        .duration(1000)
-        .attr('x', function(d) {
-          return xScale(d.key)
-        })
-
-} //end sortPlots
-
-
-var sortMenu = d3.select('#sort-menu')
-
-sortMenu.on('change', function() {
-  var selectedVariable = d3.select('input[name="sort-by"]:checked')
-                            .property("value");
-  console.log(selectedVariable)
-  finalData = getData();
-  scales = getScales(finalData);
-  xScale = scales[0];
-  sortPlots(xScale, selectedVariable);
-})
+// NONE OF THIS WORKS YET:
+// function sortPlots(xScale, selectedVariable) {
+//
+//   chart.selectAll('.plot')
+//         .sort(function(a, b) {
+//           console.log(a, b)
+//             if (selectedVariable == 'ascending') {
+//               return d3.ascending(a.value.median, b.value.median)
+//             }
+//             else if (selectedVariable == 'descending') {
+//               return d3.descending(a.value.median, b.value.median)
+//             }
+//         })
+//         .transition()
+//         .duration(1000)
+//         .call(drawChart())
+//
+//
+// } //end sortPlots
+//
+//
+// var sortMenu = d3.select('#sort-menu')
+//
+// sortMenu.on('change', function() {
+//   var selectedVariable = d3.select('input[name="sort-by"]:checked')
+//                             .property("value");
+//   console.log(selectedVariable)
+//   finalData = getData();
+//   scales = getScales(finalData);
+//   xScale = scales.x;
+//   sortPlots(xScale, selectedVariable);
+// })
 
 
 //update
@@ -514,6 +585,7 @@ variableMenu.on('change', function() {
   var grid = d3.select('#grid')
   var labs = d3.selectAll('.labels')
   var clippaths = d3.select('#chart-area')
+  var xLab = d3.select('#x-label')
 
   //uncheck sort options
   d3.selectAll('input[name = "sort-by"]').property('checked', false);
@@ -522,6 +594,7 @@ variableMenu.on('change', function() {
   grid.remove();
   labs.remove();
   clippaths.remove();
+  xLab.remove();
 
   drawChart();
 
