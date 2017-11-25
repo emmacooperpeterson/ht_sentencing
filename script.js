@@ -625,4 +625,24 @@ variableMenu.on('change', function() {
 
   drawChart();
 
+  if (selectedVariable == 'type') {
+    chart.append('text')
+          .attr('id', 'footnote')
+          .attr('x', 0)
+          .attr('y', height + 30)
+          .text('*Some cases involve multiple types of trafficking.' +
+                  ' To avoid confusion, cases included here involved' +
+                  ' only one of these three types.')
+  }
+
+  else if (selectedVariable == 'vic_gender') {
+    chart.append('text')
+          .attr('id', 'footnote')
+          .attr('x', 0)
+          .attr('y', height + 30)
+          .text('*Some cases involve victims of multiple genders.' +
+                  ' To avoid confusion, cases included here involved' +
+                  ' only one of these two genders.')
+  }
+
 })

@@ -84,6 +84,11 @@ li {
 
 }
 
+#footnote {
+  font-family: 'Courier New', serif;
+  font-size: 9px;
+}
+
 
 #grid-text {
   font-family: 'Courier New', serif;
