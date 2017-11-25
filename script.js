@@ -89,6 +89,25 @@ function getData() {
 
 
 
+
+function getScales(finalData) {
+
+  var xScale = d3.scaleBand()
+                  .domain(finalData.map(function(d) {return d.key;}))
+                  .range([0,height])
+
+  var yScale = d3.scaleLinear()
+                  .domain([d3.max(finalData, function(d) {return d.value.max;}), 0])
+                  .range([width, 0]);
+
+  return [xScale, yScale]
+
+} //end getScales
+
+
+
+
+
 function drawSideChart() {
 
   var xPoints = {75: 'minimum', 125: '25%', 200: 'median',
@@ -151,14 +170,10 @@ function drawChart() {
 
   finalData = getData();
 
-  //create scales (based on selectedVariable)
-  var xScale = d3.scaleBand()
-                  .domain(finalData.map(function(d) {return d.key;}))
-                  .range([0,height])
+  scales = getScales(finalData);
 
-  var yScale = d3.scaleLinear()
-                  .domain([d3.max(finalData, function(d) {return d.value.max;}), 0])
-                  .range([width, 0]);
+  xScale = scales[0]
+  yScale = scales[1]
 
   drawGrid(yScale, chart);
 
@@ -313,18 +328,18 @@ function appendLabels(xScale, yScale) {
         .enter()
         .append('rect')
         .attr('x', function(d) {return yScale(d.value.max + 5);})
-        .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+        .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 10;})
         .attr('width', 0)
-        .attr('height', 14)
+        .attr('height', 18)
         .style('fill', '#f4f4f4')
         .transition()
         .duration(1000)
         .delay(2500)
         .attr('class', 'labels')
         .attr('x', function(d) {return yScale(d.value.max) + 5;})
-        .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+        .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 10;})
         .attr('width', 50)
-        .attr('height', 14)
+        .attr('height', 18)
         .style('fill', '#f4f4f4')
 
   chart.selectAll(".text")
@@ -427,7 +442,37 @@ function drawGrid(yScale, chart) {
 
 
 
+function sortPlots(xScale, selectedVariable) {
 
+  chart.selectAll('.plot')
+        .sort(function(a, b) {
+            if (selectedVariable == 'ascending') {
+              return d3.ascending(a.value.median, b.value.median)
+            }
+            else if (selectedVariable == 'descending') {
+              return d3.descending(a.value.median, b.value.median)
+            }
+        })
+        .transition()
+        .duration(1000)
+        .attr('x', function(d) {
+          return xScale(d.key)
+        })
+
+} //end sortPlots
+
+
+var sortMenu = d3.select('#sort-menu')
+
+sortMenu.on('change', function() {
+  var selectedVariable = d3.select('input[name="sort-by"]:checked')
+                            .property("value");
+  console.log(selectedVariable)
+  finalData = getData();
+  scales = getScales(finalData);
+  xScale = scales[0];
+  sortPlots(xScale, selectedVariable);
+})
 
 
 //update
@@ -435,20 +480,20 @@ var variableMenu = d3.select("#include-menu")
 console.log(variableMenu)
 
 variableMenu.on('change', function() {
-  var selectedVariable = d3.select('input[name="variable"]:checked')
+  var selectedVariable = d3.select('input[name = "variable"]:checked')
                             .property("value");
+
   var boxplots = d3.selectAll('.plot')
   var grid = d3.select('#grid')
   var labs = d3.selectAll('.labels')
   var clippaths = d3.select('#chart-area')
 
-  boxplots.attr('y', -width)
-          .remove();
+  //uncheck sort options
+  d3.selectAll('input[name = "sort-by"]').property('checked', false);
 
+  boxplots.remove();
   grid.remove();
-
   labs.remove();
-
   clippaths.remove();
 
   drawChart();
