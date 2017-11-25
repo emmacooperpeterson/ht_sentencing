@@ -312,6 +312,7 @@ function appendLabels(xScale, yScale) {
         .data(finalData)
         .enter()
         .append('rect')
+        .attr('class', 'labels')
         .attr('x', function(d) {return yScale(d.value.max) + 5;})
         .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
         .attr('width', 50)
@@ -424,6 +425,7 @@ variableMenu.on('change', function() {
   var boxplots = d3.selectAll('.plot')
   var grid = d3.select('#grid')
   var labs = d3.selectAll('.labels')
+  var clippaths = d3.select('#chart-area')
 
   boxplots.attr('y', -width)
           .remove();
@@ -431,6 +433,8 @@ variableMenu.on('change', function() {
   grid.remove();
 
   labs.remove();
+
+  clippaths.remove();
 
   drawChart();
 
