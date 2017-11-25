@@ -74,7 +74,6 @@ function getData() {
   //subset data based on selected variable and get 5-number summary
 
   selectedVariable = d3.select('input[name="variable"]:checked').property("value");
-  console.log(selectedVariable)
 
   var filteredData = dataset.filter(function(d) { return !isNaN(d[selectedVariable]) });
   var nestedData = d3.nest()
@@ -88,8 +87,8 @@ function getData() {
                 count: v.length
                 };
               })
+      .sortKeys(d3.ascending)
       .entries(filteredData);
-  console.log(nestedData)
 
   return nestedData;
 
@@ -367,7 +366,7 @@ function drawChart() {
             .attr('opacity', 1)
             .attr('class', 'tooltip')
             .text(v + ': ' + label.slice(0,4));
-    }
+    } //end loop
 
     chart.append('line')
           .attr('class', 'tooltip')
@@ -387,15 +386,15 @@ function drawChart() {
           .attr('stroke-width', 0.5)
           .attr('stroke', 'black')
           .attr('stroke-dasharray', '5,5')
-    });
+
+    }); //end tooltip on
 
 
   //tooltip off
   boxplotGroups.on('mouseout', function() {
     d3.selectAll('.tooltip')
       .transition()
-      .duration(500)
-      .attr('fill', '#f4f4f4')
+      .duration(1000)
       .attr('opacity', 0)
       .remove();
    })
@@ -597,7 +596,6 @@ function drawGrid(yScale, chart) {
 
 //update
 var variableMenu = d3.select("#include-menu")
-console.log(variableMenu)
 
 variableMenu.on('change', function() {
   var selectedVariable = d3.select('input[name = "variable"]:checked')
@@ -611,6 +609,13 @@ variableMenu.on('change', function() {
 
   //uncheck sort options
   d3.selectAll('input[name = "sort-by"]').property('checked', false);
+
+  //THIS CAUSES drawChart TO NOT WORK
+  // boxplots.transition().duration(1000).attr('opacity', 0).remove();
+  // grid.transition().duration(1000).attr('opacity', 0).remove();
+  // labs.transition().duration(1000).attr('opacity', 0).remove();
+  // clippaths.transition().duration(1000).attr('opacity', 0).remove();
+  // xLab.transition().duration(1000).attr('opacity', 0).remove();
 
   boxplots.remove();
   grid.remove();
