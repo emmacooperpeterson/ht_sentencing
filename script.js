@@ -5,9 +5,6 @@ var height = 700 - margin.top - margin.bottom;
 var totalWidth = 900;
 var totalHeight = 700;
 
-//to convert time variable
-var parseDate = d3.timeParse("%Y");
-
 //boxplot colors
 var colors = {0: ['#a85c0f','#cc9060','#eac6ad'], //orange
               1: ['#2c4443','#6d7e7d','#b4bdbc'], //teal
@@ -39,10 +36,10 @@ d3.json("ht_sentencing.json", function(error, data) {
     d.vic_gender = +d.vic_gender;
   });
 
+  drawSideChart();
+  drawInitialChart();
 
-  //getData();
-  makeChart(); //should everything go in one function??
-});
+}); //end load data
 
 
 
@@ -53,7 +50,7 @@ function getData() {
   selectedVariable = d3.select('input[name="variable"]:checked').property("value");
   console.log(selectedVariable)
 
-  var filteredData = dataset.filter(function(d) { return !isNaN(d[selectedVariable]) && d[selectedVariable] < 4; });
+  var filteredData = dataset.filter(function(d) { return !isNaN(d[selectedVariable]) });
   var nestedData = d3.nest()
       .key(function(d) {return d[selectedVariable];})
       .rollup(function(v) {return {
@@ -68,19 +65,79 @@ function getData() {
       console.log(nestedData)
   return nestedData;
 
-} //end of getData
+} //end getData
 
 
 
 
-function makeChart() {
-  //console.log(dataset);
+function drawSideChart() {
+
+  var svgSmall = d3.select('#small-chart')
+                      .append('svg')
+                      .attr('width', totalWidth/2.25)
+                      .attr('height', totalHeight/2.8)
+
+  var smallChart = svgSmall.append('g')
+
+  var xPoints = {75: 'minimum', 125: '25%', 200: 'median',
+                275: '75%', 325: 'maximum'};
+
+  //append min and max bars
+  smallChart.append('rect')
+            .attr('class', 'chart-desc')
+            .attr('y', 45)
+            .attr('x', 75)
+            .attr('width', 250)
+            .attr('height', 12)
+            .style('fill', '#d6d6d6');
+
+  //append iqr bars
+  smallChart.append('rect')
+            .attr('class', 'chart-desc')
+            .attr('y', 45)
+            .attr('x', 125)
+            .attr('width', 150)
+            .attr('height', 12)
+            .style('fill', '#afafaf');
+
+  //append median
+  smallChart.append('circle')
+            .attr('class', 'chart-desc')
+            .attr('cx', 200)
+            .attr('cy', 50)
+            .attr('r', 15)
+            .style('fill', '#898989');
+
+  for (var x in xPoints) {
+    //append text
+    smallChart.append('text')
+              .attr('class', 'chart-desc-text')
+              .attr('transform', 'rotate(25' + ',' + x + ',' + 85 + ')')
+              .attr('x', x)
+              .attr('y', 85)
+              .text(xPoints[x])
+
+    //append lines
+    smallChart.append('line')
+              .attr('class', 'chart-desc')
+              .attr('x1', x)
+              .attr('y1', 65)
+              .attr('x2', x)
+              .attr('y2', 75)
+              .attr('stroke-width', 1)
+              .attr('stroke', 'black')
+
+  } //end loop
+
+}; // end makeSideChart
+
+
+
+
+
+function drawInitialChart() {
 
   finalData = getData();
-
-  //d3.select('.menu').on('change', finalData = getData());
-  console.log(finalData)
-
 
   //set up svgs and charts
   var svg = d3.select("#chart")
@@ -92,68 +149,8 @@ function makeChart() {
   var chart = svg.append('g')
                   .attr("transform", "translate(" + margin.left/2 + "," + margin.left/1.5 + ")");
 
-  var svgSmall = d3.select('#small-chart')
-                      .append('svg')
-                      .attr('width', totalWidth/2.25)
-                      .attr('height', totalHeight/2.8)
 
-  var smallChart = svgSmall.append('g')
-
-
-
-
-  //draw chart description
-  var xPoints = {75: 'minimum', 125: '25%', 200: 'median',
-                275: '75%', 325: 'maximum'};
-
-  for (var x in xPoints) {
-    smallChart.append('text')
-              .attr('class', 'chart-desc-text')
-              .attr('transform', 'rotate(25' + ',' + x + ',' + 85 + ')')
-              .attr('x', x)
-              .attr('y', 85)
-              .text(xPoints[x])
-
-    smallChart.append('line')
-              .attr('class', 'chart-desc')
-              .attr('x1', x)
-              .attr('y1', 65)
-              .attr('x2', x)
-              .attr('y2', 75)
-              .attr('stroke-width', 1)
-              .attr('stroke', 'black')
-
-  }
-
-  smallChart.append('rect')
-            .attr('class', 'chart-desc')
-            .attr('y', 45)
-            .attr('x', 75)
-            .attr('width', 250)
-            .attr('height', 12)
-            .style('fill', '#d6d6d6');
-
-  smallChart.append('rect')
-            .attr('class', 'chart-desc')
-            .attr('y', 45)
-            .attr('x', 125)
-            .attr('width', 150)
-            .attr('height', 12)
-            .style('fill', '#afafaf');
-
-  smallChart.append('circle')
-            .attr('class', 'chart-desc')
-            .attr('cx', 200)
-            .attr('cy', 50)
-            .attr('r', 15)
-            .style('fill', '#898989');
-
-
-
-  //create scales (based on judge race)
-
-  // var jR = dataset.filter(function(d) { return !isNaN(d.judge_race) && d.judge_race < 4; });
-
+  //create scales (based on selectedVariable)
   var xScale = d3.scaleBand()
                   .domain(finalData.map(function(d) {return d.key;}))
                   .range([0,height])
@@ -161,22 +158,6 @@ function makeChart() {
   var yScale = d3.scaleLinear()
                   .domain([d3.max(finalData, function(d) {return d.value.max;}), 0])
                   .range([width, 0]);
-
-
-  //subset and aggregate data based on judge_race
-  // var judgeRace = d3.nest()
-  //     .key(function(d) {return d.judge_race;})
-  //     .rollup(function(v) {return {
-  //               min: d3.min(v, function(d) {return d.sentence}),
-  //               q1: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.25),
-  //               median: d3.median(v, function(d) {return d.sentence;}),
-  //               q3: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.75),
-  //               max: d3.max(v, function(d) {return d.sentence;})
-  //               };
-  //             })
-  //     .entries(jR);
-  //     console.log(judgeRace)
-
 
   //create boxplot groups
   boxplotGroups = chart.selectAll("rect")
@@ -186,21 +167,14 @@ function makeChart() {
                         .attr('id', function(d) {return 'plot' + d.key})
                         .attr('class', 'plot')
 
-  // append min lines
+  //append min lines
   boxplotGroups.append("rect")
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.min);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {return yScale(d.value.q1 - d.value.min);})
                 .attr("height", 12)
-                .attr("fill", function(d) {
-                        var c
-                        if (d.key == 0) {c = colors[d.key][2]}
-                        else if (d.key == 1) {c = colors[d.key][2]}
-                        else if (d.key == 2) {c = colors[d.key][2]}
-                        else if (d.key == 3) {c = colors[d.key][2]}
-                        return c
-                      });
+                .attr("fill", function(d) {return colors[d.key][2]});
 
   //append max lines
   boxplotGroups.append("rect")
@@ -209,14 +183,7 @@ function makeChart() {
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {return yScale(d.value.max - d.value.q3);})
                 .attr("height", 12)
-                .attr("fill", function(d) {
-                        var c
-                        if (d.key == 0) {c = colors[d.key][2]}
-                        else if (d.key == 1) {c = colors[d.key][2]}
-                        else if (d.key == 2) {c = colors[d.key][2]}
-                        else if (d.key == 3) {c = colors[d.key][2]}
-                        return c
-                      });
+                .attr("fill", function(d) {return colors[d.key][2]});
 
   //append iqr lines
   boxplotGroups.append("rect")
@@ -225,14 +192,7 @@ function makeChart() {
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {return yScale(d.value.q3 - d.value.q1);})
                 .attr("height", 12)
-                .attr("fill", function(d) {
-                        var c
-                        if (d.key == 0) {c = colors[d.key][1]}
-                        else if (d.key == 1) {c = colors[d.key][1]}
-                        else if (d.key == 2) {c = colors[d.key][1]}
-                        else if (d.key == 3) {c = colors[d.key][1]}
-                        return c
-                      });
+                .attr("fill", function(d) {return colors[d.key][1]});
 
   //append circles
   boxplotGroups.append('circle') //why does this work when i initially selected rect?
@@ -243,14 +203,7 @@ function makeChart() {
                 .attr("r", 15)
                 .attr('stroke-width', 1.5)
                 .attr('stroke', 'white')
-                .attr("fill", function(d) {
-                        var c
-                        if (d.key == 0) {c = colors[d.key][0]}
-                        else if (d.key == 1) {c = colors[d.key][0]}
-                        else if (d.key == 2) {c = colors[d.key][0]}
-                        else if (d.key == 3) {c = colors[d.key][0]}
-                        return c
-                      });
+                .attr("fill", function(d) {return colors[d.key][0]});
 
 
   //clip path for medians
@@ -307,6 +260,12 @@ function makeChart() {
 
   //categories
   var races = {0: 'White', 1: 'Black', 2: 'Hispanic', 3: 'Asian'}
+  var genders = {0: 'Male', 1: 'Female'}
+  var parties = {0: 'Democrat', 1: 'Republican'}
+  var methods = {0: 'Unknown/other', 1: 'Online', 2: 'Kidnap', 3: 'Face-to-Face',
+                4: 'Telephone', 5: 'Family', 6: 'Newspaper'}
+  var types = {1: 'Labor trafficking', 2: 'Adult sex trafficking', 3: 'Minor Sex Trafficking'}
+  var years = {1: '2000-2003', 2: '2004-2007', 3: '2008-2011', 4: '2012-2015'}
 
   //append labels
   chart.selectAll('.rect')
@@ -328,7 +287,32 @@ function makeChart() {
         .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 + 1;})
         .attr('text-anchor', 'left')
         .attr('alignment-baseline', 'middle')
-        .text(function(d) {return races[d.key]})
+        .text(function(d) {
+          if (selectedVariable == 'judge_race' || selectedVariable == 'def_race') {
+            return races[d.key]
+          }
+
+          else if (selectedVariable == 'judge_gender' || selectedVariable == 'def_gender' || selectedVariable == 'vic_gender') {
+            return genders[d.key]
+          }
+
+          else if (selectedVariable == 'appointed_by') {
+            return parties[d.key]
+          }
+
+          else if (selectedVariable == 'recruit') {
+            return methods[d.keys]
+          }
+
+          else if (selectedVariable == 'type') {
+            return types[d.keys]
+          }
+
+          else if (selectedVariable == 'year_group') {
+            return years[d.keys]
+          }
+
+        }) //end text
 
 
   //tooltip on
@@ -357,39 +341,6 @@ function makeChart() {
 
 
 
-  //legend -- NEED TO FIX THIS
-  // circles = {525: 'White', 550: 'Black', 575: 'Asian', 600: 'Hispanic'}
-  //
-  // for (var c in circles) {
-  // chart.append('circle')
-  //       .attr('cx', 0)
-  //       .attr('cy', c)
-  //       .attr('r', 7)
-  //       .attr('class', function(d) {
-  //         var p
-  //         if (circles[c] == 'White') {p = 'white-med'}
-  //         else if (circles[c] == 'Black') {p = 'black-med'}
-  //         else if (circles[c] == 'Asian') {p = 'asian-med'}
-  //         else {p = 'hisp-med'}
-  //         return p
-  //       })
-  //
-  //
-  // chart.append('text')
-  //       .attr('x', 10)
-  //       .attr('y', c*1.01)
-  //       .attr('class', 'legend-text')
-  //       .text(circles[c])
-  // }
 
 
-
-
-
-
-
-
-
-
-
-}; //end of makeChart function
+}; //end drawInitialChart

@@ -55,7 +55,8 @@ defendants <- defendants %>%
   mutate(sentence = ifelse(sentence == 999, NA, sentence)) %>% #999 is for unknown
   mutate(sentence = sentence / 12) %>%
   filter(!is.na(sentence)) %>%
-  filter(sentence < mean(sentence) + 2*sd(sentence)) #remove outliers (2+ std above mean)
+  filter(sentence < mean(sentence) + 2*sd(sentence)) %>% #remove outliers (2+ std above mean)
+  mutate(def_gender = ifelse(def_gender == 2, NA, def_gender))
 
 #####
 
@@ -66,8 +67,8 @@ judges <- judges %>%
   mutate(judge_race = ifelse(judge_race == 'Black', 1, judge_race)) %>%
   mutate(judge_race = ifelse(judge_race == 'Hispanic', 2, judge_race)) %>%
   mutate(judge_race = ifelse(judge_race == 'Asian', 3, judge_race)) %>%
-  mutate(judge_race = ifelse(judge_race == 'Indian', 4, judge_race)) %>%
-  mutate(judge_race = ifelse(judge_race == 'Other', 5, judge_race))
+  mutate(judge_race = ifelse(judge_race == 'Indian', NA, judge_race)) %>%
+  mutate(judge_race = ifelse(judge_race == 'Other', NA, judge_race))
 
 judges <- transform(judges, judge_race = as.numeric(judge_race))
 
@@ -114,13 +115,13 @@ ht_sentencing <- full_join(case_loc, jud_def, by = 'case_id')
 ht_sentencing <- filter(ht_sentencing, !is.na(sentence))
 
 ####categories: 
-#1 = only male victims, 0 = only female victims
+#0 = only male victims, 1 = only female victims
 #1 = labor, 2 = adult sex, 3 = minor sex
 #year categories 1:(2000-2003), 2:(2004-2007), 3:(2008-2011), 4:(2012-2015)
 
 ht_sentencing <- ht_sentencing %>%
-                  mutate(vic_gender = ifelse(male_vics == 1 & female_vics == 0, 1, NA)) %>%
-                  mutate(vic_gender = ifelse(male_vics == 0 & female_vics == 1, 0, vic_gender)) %>%
+                  mutate(vic_gender = ifelse(male_vics == 1 & female_vics == 0, 0, NA)) %>%
+                  mutate(vic_gender = ifelse(male_vics == 0 & female_vics == 1, 1, vic_gender)) %>%
                   mutate(type = ifelse(labor == 1 & adult_sex == 0 & minor_sex == 0, 1, NA)) %>%
                   mutate(type = ifelse(labor == 0 & adult_sex == 1 & minor_sex == 0, 2, type)) %>%
                   mutate(type = ifelse(labor == 0 & adult_sex == 0 & minor_sex == 1, 3, type)) %>%
