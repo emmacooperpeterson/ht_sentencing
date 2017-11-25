@@ -84,10 +84,12 @@ function getData() {
                 q1: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.25),
                 median: d3.median(v, function(d) {return d.sentence;}),
                 q3: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.75),
-                max: d3.max(v, function(d) {return d.sentence;})
+                max: d3.max(v, function(d) {return d.sentence;}),
+                count: v.length
                 };
               })
       .entries(filteredData);
+  console.log(nestedData)
 
   return nestedData;
 
@@ -366,7 +368,27 @@ function drawChart() {
             .attr('class', 'tooltip')
             .text(v + ': ' + label.slice(0,4));
     }
+
+    chart.append('line')
+          .attr('class', 'tooltip')
+          .attr('x1', 0)
+          .attr('y1', 0)
+          .attr('x2', 0)
+          .attr('y2', height)
+          .attr('stroke-width', 0.5)
+          .attr('stroke', 'black')
+          .attr('stroke-dasharray', '5,5')
+          .transition()
+          .duration(500)
+          .attr('x1', yScale(xValues.median))
+          .attr('y1', 0)
+          .attr('x2', yScale(xValues.median))
+          .attr('y2', height)
+          .attr('stroke-width', 0.5)
+          .attr('stroke', 'black')
+          .attr('stroke-dasharray', '5,5')
     });
+
 
   //tooltip off
   boxplotGroups.on('mouseout', function() {
