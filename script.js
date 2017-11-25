@@ -45,11 +45,46 @@ d3.json("ht_sentencing.json", function(error, data) {
     d.appointed_by = +d.appointed_by;
   });
 
+  //getData();
   makeChart(); //should everything go in one function??
 });
 
+
+
+
+function getData() {
+  selectedVariable = d3.select('input[name="variable"]:checked').property("value");
+  console.log(selectedVariable)
+
+  //subset and aggregate data based on judge_race
+  var filteredData = dataset.filter(function(d) { return !isNaN(d[selectedVariable]) && d[selectedVariable] < 4; });
+  var nestedData = d3.nest()
+      .key(function(d) {return d[selectedVariable];})
+      .rollup(function(v) {return {
+                min: d3.min(v, function(d) {return d.sentence}),
+                q1: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.25),
+                median: d3.median(v, function(d) {return d.sentence;}),
+                q3: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.75),
+                max: d3.max(v, function(d) {return d.sentence;})
+                };
+              })
+      .entries(filteredData);
+      console.log(nestedData)
+  return nestedData;
+
+} //end of getData
+
+
+
+
 function makeChart() {
   //console.log(dataset);
+
+  finalData = getData();
+
+  //d3.select('.menu').on('change', finalData = getData());
+  console.log(finalData)
+
 
   //set up svgs and charts
   var svg = d3.select("#chart")
@@ -121,35 +156,35 @@ function makeChart() {
 
   //create scales (based on judge race)
 
-  var jR = dataset.filter(function(d) { return !isNaN(d.judge_race) && d.judge_race < 4; });
+  // var jR = dataset.filter(function(d) { return !isNaN(d.judge_race) && d.judge_race < 4; });
 
   var xScale = d3.scaleBand()
-                  .domain(jR.map(function(d) {return d.judge_race;}))
+                  .domain(finalData.map(function(d) {return d.key;}))
                   .range([0,height])
 
   var yScale = d3.scaleLinear()
-                  .domain([d3.max(jR, function(d) {return d.sentence;}), 0])
+                  .domain([d3.max(finalData, function(d) {return d.value.max;}), 0])
                   .range([width, 0]);
 
 
   //subset and aggregate data based on judge_race
-  var judgeRace = d3.nest()
-      .key(function(d) {return d.judge_race;})
-      .rollup(function(v) {return {
-                min: d3.min(v, function(d) {return d.sentence}),
-                q1: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.25),
-                median: d3.median(v, function(d) {return d.sentence;}),
-                q3: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.75),
-                max: d3.max(v, function(d) {return d.sentence;})
-                };
-              })
-      .entries(jR);
-      console.log(judgeRace)
+  // var judgeRace = d3.nest()
+  //     .key(function(d) {return d.judge_race;})
+  //     .rollup(function(v) {return {
+  //               min: d3.min(v, function(d) {return d.sentence}),
+  //               q1: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.25),
+  //               median: d3.median(v, function(d) {return d.sentence;}),
+  //               q3: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.75),
+  //               max: d3.max(v, function(d) {return d.sentence;})
+  //               };
+  //             })
+  //     .entries(jR);
+  //     console.log(judgeRace)
 
 
   //create boxplot groups
   boxplotGroups = chart.selectAll("rect")
-                        .data(judgeRace)
+                        .data(finalData)
                         .enter()
                         .append('g')
                         .attr('id', function(d) {return 'plot' + d.key})
@@ -279,7 +314,7 @@ function makeChart() {
 
   //append labels
   chart.selectAll('.rect')
-        .data(judgeRace)
+        .data(finalData)
         .enter()
         .append('rect')
         .attr('x', function(d) {return yScale(d.value.max) + 5;})
@@ -289,7 +324,7 @@ function makeChart() {
         .style('fill', '#f4f4f4')
 
   chart.selectAll(".text")
-        .data(judgeRace)
+        .data(finalData)
         .enter()
         .append("text")
         .attr('class', 'labels')
