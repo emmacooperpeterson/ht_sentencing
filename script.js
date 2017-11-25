@@ -393,9 +393,9 @@ function appendLabels(xScale, yScale) {
   var parties = {0: 'Democrat', 1: 'Republican'}
   var methods = {0: 'Unknown/other', 1: 'Online', 2: 'Kidnap', 3: 'Face-to-Face',
                 4: 'Telephone', 5: 'Family', 6: 'Newspaper'}
-  var types = {1: 'Labor trafficking', 2: 'Adult sex trafficking', 3: 'Minor Sex Trafficking'}
+  var types = {0: 'Labor trafficking', 1: 'Adult sex trafficking', 2: 'Minor Sex Trafficking'}
   var regions = {0: 'South', 1: 'Northeast', 2: 'West', 3: 'Midwest'}
-  var years = {1: '2000-2003', 2: '2004-2007', 3: '2008-2011', 4: '2012-2015'}
+  var years = {0: '2000-2003', 1: '2004-2007', 2: '2008-2011', 3: '2012-2015'}
 
   //append labels
   chart.selectAll('.rect')
@@ -447,19 +447,19 @@ function appendLabels(xScale, yScale) {
           }
 
           else if (selectedVariable == 'recruit') {
-            return methods[d.keys]
+            return methods[d.key]
           }
 
           else if (selectedVariable == 'type') {
-            return types[d.keys-1]
+            return types[d.key]
           }
 
           else if (selectedVariable == 'region') {
-            return regions[d.keys]
+            return regions[d.key]
           }
 
           else if (selectedVariable == 'year_group') {
-            return years[d.keys-1]
+            return years[d.key]
           }
 
         }) //end text

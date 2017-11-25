@@ -116,19 +116,19 @@ ht_sentencing <- filter(ht_sentencing, !is.na(sentence))
 
 ####categories: 
 #0 = only male victims, 1 = only female victims
-#1 = labor, 2 = adult sex, 3 = minor sex
-#year categories 1:(2000-2003), 2:(2004-2007), 3:(2008-2011), 4:(2012-2015)
+#0 = labor, 1 = adult sex, 2 = minor sex
+#year categories 0:(2000-2003), 1:(2004-2007), 2:(2008-2011), 3:(2012-2015)
 
 ht_sentencing <- ht_sentencing %>%
                   mutate(vic_gender = ifelse(male_vics == 1 & female_vics == 0, 0, NA)) %>%
                   mutate(vic_gender = ifelse(male_vics == 0 & female_vics == 1, 1, vic_gender)) %>%
-                  mutate(type = ifelse(labor == 1 & adult_sex == 0 & minor_sex == 0, 1, NA)) %>%
-                  mutate(type = ifelse(labor == 0 & adult_sex == 1 & minor_sex == 0, 2, type)) %>%
-                  mutate(type = ifelse(labor == 0 & adult_sex == 0 & minor_sex == 1, 3, type)) %>%
-                  mutate(year_group = ifelse(year >= 2000 & year <=2003, 1, NA)) %>%
-                  mutate(year_group = ifelse(year >= 2004 & year <= 2007, 2, year_group)) %>%
-                  mutate(year_group = ifelse(year >= 2008 & year <= 2011, 3, year_group)) %>%
-                  mutate(year_group = ifelse(year >= 2012 & year <= 2015, 4, year_group))
+                  mutate(type = ifelse(labor == 1 & adult_sex == 0 & minor_sex == 0, 0, NA)) %>%
+                  mutate(type = ifelse(labor == 0 & adult_sex == 1 & minor_sex == 0, 1, type)) %>%
+                  mutate(type = ifelse(labor == 0 & adult_sex == 0 & minor_sex == 1, 2, type)) %>%
+                  mutate(year_group = ifelse(year >= 2000 & year <=2003, 0, NA)) %>%
+                  mutate(year_group = ifelse(year >= 2004 & year <= 2007, 1, year_group)) %>%
+                  mutate(year_group = ifelse(year >= 2008 & year <= 2011, 2, year_group)) %>%
+                  mutate(year_group = ifelse(year >= 2012 & year <= 2015, 3, year_group))
               
 
 ht_sentencing <- ht_sentencing[c('recruit', 'foreign_vics', 'region', 'judge_gender', 'judge_race',
