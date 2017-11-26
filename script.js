@@ -76,15 +76,16 @@ d3.json("ht_sentencing.json", function(error, data) {
     d.vic_gender = +d.vic_gender;
   });
 
+  finalData = getData();
   drawSideChart();
-  drawChart();
+  drawChart(finalData);
 
 }); //end load data
 
 
 
 
-function getData() {
+function getData(sorted='default') {
   //subset data based on selected variable and get 5-number summary
 
   selectedVariable = d3.select('input[name="variable"]:checked').property("value");
@@ -101,8 +102,23 @@ function getData() {
                 count: v.length
                 };
               })
-      .sortKeys(d3.ascending)
+      .sortKeys(d3.ascending) //default sorting by key so years appear in order
       .entries(filteredData);
+
+
+  if (sorted == 'ascending') {
+    nestedData.sort(function(a, b) {
+            return d3.ascending(a.value.median, b.value.median)}
+          );
+  }
+
+  else if (sorted == 'descending') {
+    nestedData.sort(function(a, b) {
+            return d3.descending(a.value.median, b.value.median)}
+          );
+  }
+
+  console.log(nestedData)
 
   return nestedData;
 
@@ -187,8 +203,7 @@ function drawSideChart() {
 
 
 
-function drawChart() {
-  finalData = getData();
+function drawChart(finalData) {
 
   scales = getScales(finalData);
   xScale = scales.x
@@ -568,40 +583,18 @@ function drawGrid(yScale, chart) {
 }; //end drawGrid
 
 
+//SORTING
+var sortMenu = d3.select('#sort-menu')
 
-// NONE OF THIS WORKS YET:
-// function sortPlots(xScale, sortMethod) {
-//
-//   chart.selectAll('.plot')
-//         .sort(function(a, b) {
-//           console.log(a, b)
-//             if (sortMethod == 'ascending') {
-//               return d3.ascending(a.value.median, b.value.median)
-//             }
-//             else if (sortMethod == 'descending') {
-//               return d3.descending(a.value.median, b.value.median)
-//             }
-//         })
-//         .transition()
-//         .duration(1000)
-//         .call(removePlots();)
-//         .call(drawChart();)
-//
-//
-// } //end sortPlots
-//
-//
-// var sortMenu = d3.select('#sort-menu')
-//
-// sortMenu.on('change', function() {
-//   var sortMethod = d3.select('input[name="sort-by"]:checked')
-//                             .property("value");
-//   console.log(sortMethod)
-//   finalData = getData();
-//   scales = getScales(finalData);
-//   xScale = scales.x;
-//   sortPlots(xScale, sortMethod);
-// })
+sortMenu.on('change', function() {
+  var sortMethod = d3.select('input[name="sort-by"]:checked')
+                            .property("value");
+  console.log(sortMethod)
+
+  finalData = getData(sortMethod)
+  removePlots();
+  drawChart(finalData)
+})
 
 
 //update
@@ -615,7 +608,8 @@ variableMenu.on('change', function() {
   d3.selectAll('input[name = "sort-by"]').property('checked', false);
 
   removePlots();
-  drawChart();
+  finalData = getData();
+  drawChart(finalData);
 
   footnotes = {'type':  '*Some cases involve multiple types of trafficking.' +
                         ' To avoid confusion, cases included here involved' +
