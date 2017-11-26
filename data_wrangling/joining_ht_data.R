@@ -125,7 +125,7 @@ ht_sentencing <- ht_sentencing %>%
                   mutate(year_group = ifelse(year >= 2012 & year <= 2015, 3, year_group))
               
 
-ht_sentencing <- ht_sentencing[c('recruit', 'foreign_vics', 'region', 'judge_gender', 'judge_race',
+ht_sentencing <- ht_sentencing[c('case_id','recruit', 'foreign_vics', 'region', 'judge_gender', 'judge_race',
                                  'appointed_by', 'def_gender', 'def_race', 'sentence', 'vic_gender',
                                  'type', 'year_group')]
 
