@@ -12,12 +12,26 @@ var colors = {0: ['#a85c0f','#cc9060','#eac6ad'], //orange
               3: ['#a0892b','#c3ae72','#e3d6b6'], //yellow
               4: ['#27333d','#687078','#b1b5ba'], //blue
               5: ['#5b5b5b','#8f8f8f','#c6c6c6'], //grey
-              6: ['#894229','#b57e6a','#dcbdb2']  //red
-              }
+              6: ['#894229','#b57e6a','#dcbdb2']}  //red
+
+var tooltipColors =  {0: '#efddd1', //orange
+                      1: '#d4d9d8', //teal
+                      2: '#deddd5', //green
+                      3: '#ece5d5', //yellow
+                      4: '#d3d5d7', //blue
+                      5: '#dddddd', //grey
+                      6: '#e8d9d3'}  //red
 
 var xLabels = {'judge_race': 'Judge Race', 'judge_gender': 'Judge Gender',
                 'appointed_by': 'Judge Party Affiliation',
                 'def_race': 'Defendant Race', 'def_gender': 'Defendant Gender',
+                'vic_gender': 'Victim Gender', 'recruit': 'Method of Recruitment',
+                'type': 'Type of Trafficking', 'region': 'U.S. Region',
+                'year_group': 'Year'}
+
+var counts = {'judge_race': {}, 'judge_gender': {},
+                'appointed_by': {},
+                'def_race': {}, 'def_gender': 'Defendant Gender',
                 'vic_gender': 'Victim Gender', 'recruit': 'Method of Recruitment',
                 'type': 'Type of Trafficking', 'region': 'U.S. Region',
                 'year_group': 'Year'}
@@ -105,7 +119,7 @@ function getScales(finalData) {
                   .range([0,height])
 
   var yScale = d3.scaleLinear()
-                  .domain([d3.max(finalData, function(d) {return d.value.max;}), 0])
+                  .domain([40, 0])
                   .range([width, 0]);
 
   return {'x': xScale, 'y': yScale}
@@ -197,8 +211,8 @@ function drawChart() {
                 .attr('height', 12)
                 .attr('width', 0)
                 .transition()
-                .duration(1000)
-                .delay(2000)
+                .duration(1800)
+                .delay(1000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.min);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
@@ -214,8 +228,8 @@ function drawChart() {
                 .attr('height', 12)
                 .attr('width', 0)
                 .transition()
-                .duration(1000)
-                .delay(2000)
+                .duration(1800)
+                .delay(1000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.q3);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
@@ -231,7 +245,7 @@ function drawChart() {
                 .attr('height', 12)
                 .attr('width', 0)
                 .transition()
-                .duration(1000)
+                .duration(1400)
                 .delay(1000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.q1);})
@@ -248,7 +262,7 @@ function drawChart() {
                 .attr('height', 12)
                 .attr('width', 0)
                 .transition()
-                .duration(1000)
+                .duration(1400)
                 .delay(1000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.median);})
@@ -261,7 +275,7 @@ function drawChart() {
   //append circles
   boxplotGroups.append('circle') //why does this work when i initially selected rect?
                 .attr('cy', function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
-                .attr('cx', -10)
+                .attr('cx', -20)
                 .attr('r', 15)
                 .transition()
                 .duration(1000)
@@ -290,82 +304,50 @@ function drawChart() {
   //tooltip on
   boxplotGroups.on('mouseover', function(d) {
     plot = d3.select(this);
-    xValues = plot._groups[0][0].__data__.value
-    y = parseFloat(plot._groups[0][0].lastChild.attributes[0].value)
+    xValues = plot._groups[0][0].__data__.value;
+    color = plot._groups[0][0].__data__.key;
+    y = parseFloat(plot._groups[0][0].childNodes[0].attributes[1].value);
 
+    var stats = {'min': 'min: ', 'q1': '25%: ', 'median': 'median: ',
+                  'q3': '75%: ', 'max': 'max: ', 'count': 'cases: '}
+
+    var coordinates = d3.mouse(this);
+    var xCoord = coordinates[0];
+
+    chart.append('rect')
+          .attr('class', 'tooltip')
+          .attr('x', xCoord)
+          .attr('y', y + 15)
+          .attr('width', 100)
+          .attr('height', 102)
+          .attr('fill', '#f4f4f4')
+          .attr('opacity', 0)
+          .transition()
+          .duration(1000)
+          .attr('x', xCoord)
+          .attr('y', y + 15)
+          .attr('width', 100)
+          .attr('height', 102)
+          .attr('fill', function() {return tooltipColors[color]})
+          .attr('opacity', 1)
+
+    i=32
     for (var v in xValues) {
       label = String(xValues[v])
 
-      chart.append('rect')
-            .attr('class', 'tooltip')
-            .attr('x', yScale(xValues[v]))
-            .attr('y', function() {
-              if (v == 'q1') {
-                if (xValues.q1 == xValues.q3) {return y - 53}
-                else {return y - 33}
-              }
-
-              else if (v == 'q3') {return y - 33}
-
-              else if (v == 'median') {
-                if (xValues.min == xValues.median) {return y + 37}
-                else {return y+17}
-              }
-
-              else {return y + 17}
-            })
-            .attr('width', 65)
-            .attr('height', 18)
-            .attr('fill', '#f4f4f4')
-            .attr('opacity', 0)
-            .transition()
-            .duration(500)
-            .attr('x', yScale(xValues[v]))
-            .attr('y', function() {
-              if (v == 'q1') {
-                if (xValues.q1 == xValues.q3) {return y - 53}
-                else {return y - 33}
-              }
-
-              else if (v == 'q3') {return y - 33}
-
-              else if (v == 'median') {
-                if (xValues.min == xValues.median) {return y + 37}
-                else {return y+17}
-              }
-
-              else {return y + 17}
-            })
-            .attr('width', 65)
-            .attr('height', 18)
-            .attr('fill', '#f4f4f4')
-            .attr('opacity', 1)
-
       chart.append('text')
-            .attr('x', yScale(xValues[v]))
-            .attr('y', y)
+            .attr('x', xCoord + 10)
+            .attr('y', y + i)
             .attr('opacity', 0)
             .transition()
             .duration(500)
-            .attr('x', yScale(xValues[v]))
-            .attr('y', function() {
-              if (v == 'q1') {
-                if (xValues.q1 == xValues.q3) {return y - 40}
-                else {return y - 20}
-              }
-
-              else if (v == 'q3') {return y - 20}
-
-              else if (v == 'median') {
-                if (xValues.min == xValues.median) {return y + 50}
-                else {return y + 30}
-              }
-
-              else {return y + 30}
-            })
+            .attr('x', xCoord + 10)
+            .attr('y', y + i)
             .attr('opacity', 1)
             .attr('class', 'tooltip')
-            .text(v + ': ' + label.slice(0,4));
+            .text(stats[v] + label.slice(0,4));
+
+      i = i + 15
     } //end loop
 
     chart.append('line')
@@ -389,7 +371,6 @@ function drawChart() {
 
     }); //end tooltip on
 
-
   //tooltip off
   boxplotGroups.on('mouseout', function() {
     d3.selectAll('.tooltip')
@@ -399,8 +380,6 @@ function drawChart() {
       .remove();
    })
 
-
-
 }; //end drawChart
 
 
@@ -408,7 +387,7 @@ function drawChart() {
 
 
 function appendLabels(xScale, yScale) {
-  //categories
+
   var races = {0: 'White', 1: 'Black', 2: 'Hispanic', 3: 'Asian', 4: 'Indian', 5: 'Other'}
   var genders = {0: 'Male', 1: 'Female'}
   var parties = {0: 'Democrat', 1: 'Republican'}
@@ -418,72 +397,29 @@ function appendLabels(xScale, yScale) {
   var regions = {0: 'South', 1: 'Northeast', 2: 'West', 3: 'Midwest'}
   var years = {0: '2000-2003', 1: '2004-2007', 2: '2008-2011', 3: '2012-2015'}
 
-  //append labels
-  chart.selectAll('.rect')
-        .data(finalData)
-        .enter()
-        .append('rect')
-        .attr('x', function(d) {return yScale(d.value.max + 5);})
-        .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 10;})
-        .attr('width', 0)
-        .attr('height', 18)
-        .style('fill', '#f4f4f4')
-        .transition()
-        .duration(1000)
-        .delay(2500)
-        .attr('class', 'labels')
-        .attr('x', function(d) {return yScale(d.value.max) + 5;})
-        .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 10;})
-        .attr('width', 50)
-        .attr('height', 18)
-        .style('fill', '#f4f4f4')
+  labels = {'judge_race': races, 'judge_gender': genders,
+            'appointed_by': parties, 'def_race': races,
+            'def_gender': genders, 'vic_gender': genders,
+            'recruit': methods, 'type': types, 'region': regions,
+            'year_group': years}
 
   chart.selectAll(".text")
         .data(finalData)
         .enter()
         .append("text")
-        .attr('x', function(d) {return yScale(d.value.max) + 8;})
+        .attr('x', 708)
         .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 + 1;})
         .attr('fill', '#f4f4f4')
         .transition()
         .duration(1500)
         .delay(2500)
         .attr('class', 'labels')
-        .attr('x', function(d) {return yScale(d.value.max) + 8;})
+        .attr('x', 708)
         .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 + 1;})
         .attr('text-anchor', 'left')
         .attr('alignment-baseline', 'middle')
         .attr('fill', 'black')
-        .text(function(d) {
-          if (selectedVariable == 'judge_race' || selectedVariable == 'def_race') {
-            return races[d.key]
-          }
-
-          else if (selectedVariable == 'judge_gender' || selectedVariable == 'def_gender' || selectedVariable == 'vic_gender') {
-            return genders[d.key]
-          }
-
-          else if (selectedVariable == 'appointed_by') {
-            return parties[d.key]
-          }
-
-          else if (selectedVariable == 'recruit') {
-            return methods[d.key]
-          }
-
-          else if (selectedVariable == 'type') {
-            return types[d.key]
-          }
-
-          else if (selectedVariable == 'region') {
-            return regions[d.key]
-          }
-
-          else if (selectedVariable == 'year_group') {
-            return years[d.key]
-          }
-
-        }) //end text
+        .text(function(d) {return labels[selectedVariable][d.key]})
 
 }; //end appendLabels
 
@@ -585,7 +521,7 @@ function drawGrid(yScale, chart) {
 //
 // sortMenu.on('change', function() {
 //   var selectedVariable = d3.select('input[name="sort-by"]:checked')
-//                             .property("value");
+//                             .property("value"); SHOULD I NAME THIS NOT SELECTED VARIABLE BC THATS ALREADY USED??
 //   console.log(selectedVariable)
 //   finalData = getData();
 //   scales = getScales(finalData);
@@ -606,6 +542,7 @@ variableMenu.on('change', function() {
   var labs = d3.selectAll('.labels')
   var clippaths = d3.select('#chart-area')
   var xLab = d3.select('#x-label')
+  var footnotes = d3.select('#footnote')
 
   //uncheck sort options
   d3.selectAll('input[name = "sort-by"]').property('checked', false);
@@ -622,27 +559,30 @@ variableMenu.on('change', function() {
   labs.remove();
   clippaths.remove();
   xLab.remove();
+  footnotes.remove();
 
   drawChart();
 
-  if (selectedVariable == 'type') {
+  footnotes = {'type':  '*Some cases involve multiple types of trafficking.' +
+                        ' To avoid confusion, cases included here involved' +
+                        ' one of these three types exclusively.',
+
+                'vic_gender': '*Some cases involve victims of multiple genders.' +
+                              ' To avoid confusion, cases included here involved' +
+                              ' one of these two genders exclusively.'
+              }
+
+  if (selectedVariable == 'type' || selectedVariable == 'vic_gender') {
     chart.append('text')
           .attr('id', 'footnote')
+          .attr('opacity', 0)
+          .transition()
+          .duration(1000)
           .attr('x', 0)
           .attr('y', height + 30)
-          .text('*Some cases involve multiple types of trafficking.' +
-                  ' To avoid confusion, cases included here involved' +
-                  ' only one of these three types.')
+          .attr('opacity', 1)
+
+          .text(footnotes[selectedVariable])
   }
 
-  else if (selectedVariable == 'vic_gender') {
-    chart.append('text')
-          .attr('id', 'footnote')
-          .attr('x', 0)
-          .attr('y', height + 30)
-          .text('*Some cases involve victims of multiple genders.' +
-                  ' To avoid confusion, cases included here involved' +
-                  ' only one of these two genders.')
-  }
-
-})
+}) //end update process

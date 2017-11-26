@@ -11,20 +11,16 @@ setwd('~/Desktop/repos/ht_sentencing/data_wrangling/')
 cases <- read_csv("../original_data/cases.csv")
 defendants <- read_csv("../original_data/defendants.csv")
 judges <- read_csv("../original_data/judges.csv")
-crime_locations <- read_csv("../original_data/crime_locations.csv")
 
 #subset
-cases <- cases[c('case_id', 'start_date', 'minor_sex', 'adult_sex', 'labor', 'recruit1', 'number_victims_female', 'number_victims_male', 'number_victims_foreign')]
+cases <- cases[c('case_id', 'start_date', 'minor_sex', 'adult_sex', 'labor', 'recruit1', 'number_victims_female', 'number_victims_male', 'number_victims_foreign', 'state')]
 defendants <- defendants[c('case_id', 'judge_id', 'gender', 'race', 'total_sentence', 'first_name')]
 judges <- judges[c('id', 'gender', 'race', 'appointed_by')]
-crime_locations <- crime_locations[c('case_id', 'state')]
 
 #rename
-colnames(cases) <- c('case_id', 'year', 'minor_sex', 'adult_sex', 'labor', 'recruit', 'female_vics', 'male_vics', 'foreign_vics')
+colnames(cases) <- c('case_id', 'year', 'minor_sex', 'adult_sex', 'labor', 'recruit', 'female_vics', 'male_vics', 'foreign_vics', 'region')
 colnames(defendants) <- c('case_id', 'judge_id', 'def_gender', 'def_race', 'sentence', 'first_name')
 colnames(judges) <- c('judge_id', 'judge_gender', 'judge_race', 'appointed_by')
-colnames(crime_locations) <- c('case_id', 'region')
-colnames(victim_countries) <- c('case_id', 'victim_country')
 
 ################
 ### CLEANING ###
@@ -55,7 +51,6 @@ defendants <- defendants %>%
   mutate(sentence = ifelse(sentence == 999, NA, sentence)) %>% #999 is for unknown
   mutate(sentence = sentence / 12) %>%
   filter(!is.na(sentence)) %>%
-  filter(sentence < mean(sentence) + 2*sd(sentence)) %>% #remove outliers (2+ std above mean)
   mutate(def_gender = ifelse(def_gender == 2, NA, def_gender))
 
 #####
@@ -97,21 +92,20 @@ west <- c("Arizona", "AZ", "Colorado", "CO", "Idaho", "ID", "Montana", "MT",
           "OR", "Washington", "WA")
 
 
-crime_locations <- crime_locations %>%
+cases <- cases %>%
   mutate(region = ifelse(region %in% south, 0, region)) %>%
   mutate(region = ifelse(region %in% northeast, 1, region)) %>%
   mutate(region = ifelse(region %in% west, 2, region)) %>%
   mutate(region = ifelse(region %in% midwest, 3, region))
 
-crime_locations <- transform(crime_locations, region = as.numeric(region))
+cases <- transform(cases, region = as.numeric(region))
 
 ###############
 ### JOINING ###
 ###############
 
 jud_def <- full_join(judges, defendants, by = 'judge_id')
-case_loc <- full_join(cases, crime_locations, by = 'case_id')
-ht_sentencing <- full_join(case_loc, jud_def, by = 'case_id')
+ht_sentencing <- full_join(cases, jud_def, by = 'case_id')
 ht_sentencing <- filter(ht_sentencing, !is.na(sentence))
 
 ####categories: 
@@ -142,4 +136,15 @@ ht_sentencing <- ht_sentencing[c('recruit', 'foreign_vics', 'region', 'judge_gen
 write_csv(ht_sentencing, '../joined_data/ht_sentencing.csv')
 
 
+
+
+#COUNTS
+result = list()
+for (i in names(ht_sentencing)) {
+  if (i != 'sentence') {
+    group = group_by(ht_sentencing, ht_sentencing[[i]])
+    c = count(group)
+    result[[i]] <- c
+  }
+}
 
