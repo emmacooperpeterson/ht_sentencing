@@ -196,6 +196,28 @@ function drawChart() {
 
   drawGrid(yScale, chart);
 
+  //create gradient to fade max lines https://www.freshconsulting.com/d3-js-gradients-the-easy-way/
+  var defs = chart.append("defs");
+
+  var gradient = defs.append("linearGradient")
+     .attr("id", "svgGradient")
+     .attr("x1", "0%")
+     .attr("x2", "100%")
+     .attr("y1", "0%")
+     .attr("y2", "0%");
+
+  gradient.append("stop")
+     .attr('class', 'start')
+     .attr("offset", "0%")
+     .attr("stop-color", "#f4f4f4")
+     .attr("stop-opacity", 0);
+
+  gradient.append("stop")
+     .attr('class', 'end')
+     .attr("offset", "100%")
+     .attr("stop-color", "#f4f4f4")
+     .attr("stop-opacity", 1);
+
   //create boxplot groups
   boxplotGroups = chart.selectAll("rect")
                         .data(finalData)
@@ -206,13 +228,13 @@ function drawChart() {
 
   //append min lines
   boxplotGroups.append("rect")
-                .attr('x', function(d) {return d.value.q1})
+                .attr('x', function(d) {return yScale(d.value.q1)})
                 .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr('height', 12)
                 .attr('width', 0)
                 .transition()
-                .duration(1800)
-                .delay(1000)
+                .duration(1000)
+                .delay(2000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.min);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
@@ -223,29 +245,55 @@ function drawChart() {
 
   //append max lines
   boxplotGroups.append("rect")
-                .attr('x', function(d) {return d.value.q3})
+                .attr('x', function(d) {return yScale(d.value.q3)})
                 .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr('height', 12)
                 .attr('width', 0)
                 .transition()
-                .duration(1800)
-                .delay(1000)
+                .duration(1000)
+                .delay(2000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.q3);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
-                .attr("width", function(d) {return yScale(d.value.max - d.value.q3);})
+                .attr("width", function(d) {
+                  if (d.value.max > 40) {
+                    return yScale(40-d.value.q3)
+                  }
+                  else {return yScale(d.value.max - d.value.q3);}
+                })
                 .attr("height", 12)
                 .attr("fill", function(d) {return colors[d.key][2]})
+                //.attr('fill', 'url(#svgGradient)')
                 .attr('opacity', 1);
 
-  //append q1 lines
+  //if ()
+  //append gradient lines
   boxplotGroups.append("rect")
-                .attr('x', function(d) {return d.value.median})
+                .attr('x', function(d) {return yScale(35)})
                 .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr('height', 12)
                 .attr('width', 0)
                 .transition()
-                .duration(1400)
+                .duration(1000)
+                .delay(2000)
+                .attr('class', 'boxplot')
+                .attr("x", function(d) {return yScale(35);})
+                .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+                .attr("width", function(d) {return yScale(5);})
+                .attr("height", 12)
+                //.attr("fill", function(d) {return colors[d.key][2]})
+                .attr('fill', 'url(#svgGradient)')
+                .attr('opacity', 1);
+
+
+  //append q1 lines
+  boxplotGroups.append("rect")
+                .attr('x', function(d) {return yScale(d.value.median)})
+                .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
+                .attr('height', 12)
+                .attr('width', 0)
+                .transition()
+                .duration(1000)
                 .delay(1000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.q1);})
@@ -257,12 +305,12 @@ function drawChart() {
 
   //append q3 lines
   boxplotGroups.append("rect")
-                .attr('x', function(d) {return d.value.median})
+                .attr('x', function(d) {return yScale(d.value.median)})
                 .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr('height', 12)
                 .attr('width', 0)
                 .transition()
-                .duration(1400)
+                .duration(1000)
                 .delay(1000)
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(d.value.median);})
@@ -299,6 +347,7 @@ function drawChart() {
         .attr('height', height)
 
 
+
   appendLabels(xScale, yScale);
 
   //tooltip on
@@ -314,6 +363,27 @@ function drawChart() {
     var coordinates = d3.mouse(this);
     var xCoord = coordinates[0];
 
+    //comparison line
+    chart.append('line')
+          .attr('class', 'tooltip')
+          .attr('x1', 0)
+          .attr('y1', 0)
+          .attr('x2', 0)
+          .attr('y2', height)
+          .attr('stroke-width', 0.5)
+          .attr('stroke', 'black')
+          .attr('stroke-dasharray', '5,5')
+          .transition()
+          .duration(500)
+          .attr('x1', yScale(xValues.median))
+          .attr('y1', 0)
+          .attr('x2', yScale(xValues.median))
+          .attr('y2', height)
+          .attr('stroke-width', 0.5)
+          .attr('stroke', 'black')
+          .attr('stroke-dasharray', '5,5')
+
+    //box to hold stats
     chart.append('rect')
           .attr('class', 'tooltip')
           .attr('x', xCoord)
@@ -349,25 +419,6 @@ function drawChart() {
 
       i = i + 15
     } //end loop
-
-    chart.append('line')
-          .attr('class', 'tooltip')
-          .attr('x1', 0)
-          .attr('y1', 0)
-          .attr('x2', 0)
-          .attr('y2', height)
-          .attr('stroke-width', 0.5)
-          .attr('stroke', 'black')
-          .attr('stroke-dasharray', '5,5')
-          .transition()
-          .duration(500)
-          .attr('x1', yScale(xValues.median))
-          .attr('y1', 0)
-          .attr('x2', yScale(xValues.median))
-          .attr('y2', height)
-          .attr('stroke-width', 0.5)
-          .attr('stroke', 'black')
-          .attr('stroke-dasharray', '5,5')
 
     }); //end tooltip on
 
@@ -492,26 +543,49 @@ function drawGrid(yScale, chart) {
       return xLabels[variable]
     });
 
+  chart.append('text')
+        .attr('class', 'footnote')
+        .attr('opacity', 0)
+        .transition()
+        .duration(1000)
+        .attr('x', 0)
+        .attr('y', height + 30)
+        .attr('opacity', 1)
+        .text('*Sentences longer than 40 years are more than two' +
+              ' standard deviations above the mean and are' +
+              ' therefore considered outliers.')
+
+  chart.append('text')
+        .attr('class', 'footnote')
+        .attr('opacity', 0)
+        .transition()
+        .duration(1000)
+        .attr('x', 0)
+        .attr('y', height + 40)
+        .attr('opacity', 1)
+        .text('Hover over each plot to view actual maximum sentences.')
+
 }; //end drawGrid
 
 
 
 // NONE OF THIS WORKS YET:
-// function sortPlots(xScale, selectedVariable) {
+// function sortPlots(xScale, sortMethod) {
 //
 //   chart.selectAll('.plot')
 //         .sort(function(a, b) {
 //           console.log(a, b)
-//             if (selectedVariable == 'ascending') {
+//             if (sortMethod == 'ascending') {
 //               return d3.ascending(a.value.median, b.value.median)
 //             }
-//             else if (selectedVariable == 'descending') {
+//             else if (sortMethod == 'descending') {
 //               return d3.descending(a.value.median, b.value.median)
 //             }
 //         })
 //         .transition()
 //         .duration(1000)
-//         .call(drawChart())
+//         .call(removePlots();)
+//         .call(drawChart();)
 //
 //
 // } //end sortPlots
@@ -520,13 +594,13 @@ function drawGrid(yScale, chart) {
 // var sortMenu = d3.select('#sort-menu')
 //
 // sortMenu.on('change', function() {
-//   var selectedVariable = d3.select('input[name="sort-by"]:checked')
-//                             .property("value"); SHOULD I NAME THIS NOT SELECTED VARIABLE BC THATS ALREADY USED??
-//   console.log(selectedVariable)
+//   var sortMethod = d3.select('input[name="sort-by"]:checked')
+//                             .property("value");
+//   console.log(sortMethod)
 //   finalData = getData();
 //   scales = getScales(finalData);
 //   xScale = scales.x;
-//   sortPlots(xScale, selectedVariable);
+//   sortPlots(xScale, sortMethod);
 // })
 
 
@@ -537,15 +611,43 @@ variableMenu.on('change', function() {
   var selectedVariable = d3.select('input[name = "variable"]:checked')
                             .property("value");
 
+  //uncheck sort options
+  d3.selectAll('input[name = "sort-by"]').property('checked', false);
+
+  removePlots();
+  drawChart();
+
+  footnotes = {'type':  '*Some cases involve multiple types of trafficking.' +
+                        ' To avoid confusion, cases included here involved' +
+                        ' one of these three types exclusively.',
+
+                'vic_gender': '*Some cases involve victims of multiple genders.' +
+                              ' To avoid confusion, cases included here involved' +
+                              ' one of these two genders exclusively.'
+              }
+
+  if (selectedVariable == 'type' || selectedVariable == 'vic_gender') {
+    chart.append('text')
+          .attr('class', 'footnote')
+          .attr('opacity', 0)
+          .transition()
+          .duration(1000)
+          .attr('x', 0)
+          .attr('y', height + 55)
+          .attr('opacity', 1)
+          .text(footnotes[selectedVariable])
+  }
+
+}) //end update process
+
+
+function removePlots() {
   var boxplots = d3.selectAll('.plot')
   var grid = d3.select('#grid')
   var labs = d3.selectAll('.labels')
   var clippaths = d3.select('#chart-area')
   var xLab = d3.select('#x-label')
-  var footnotes = d3.select('#footnote')
-
-  //uncheck sort options
-  d3.selectAll('input[name = "sort-by"]').property('checked', false);
+  var footnotes = d3.selectAll('.footnote')
 
   //THIS CAUSES drawChart TO NOT WORK
   // boxplots.transition().duration(1000).attr('opacity', 0).remove();
@@ -560,29 +662,4 @@ variableMenu.on('change', function() {
   clippaths.remove();
   xLab.remove();
   footnotes.remove();
-
-  drawChart();
-
-  footnotes = {'type':  '*Some cases involve multiple types of trafficking.' +
-                        ' To avoid confusion, cases included here involved' +
-                        ' one of these three types exclusively.',
-
-                'vic_gender': '*Some cases involve victims of multiple genders.' +
-                              ' To avoid confusion, cases included here involved' +
-                              ' one of these two genders exclusively.'
-              }
-
-  if (selectedVariable == 'type' || selectedVariable == 'vic_gender') {
-    chart.append('text')
-          .attr('id', 'footnote')
-          .attr('opacity', 0)
-          .transition()
-          .duration(1000)
-          .attr('x', 0)
-          .attr('y', height + 30)
-          .attr('opacity', 1)
-
-          .text(footnotes[selectedVariable])
-  }
-
-}) //end update process
+}
