@@ -76,8 +76,11 @@ d3.json("ht_sentencing.json", function(error, data) {
     d.vic_gender = +d.vic_gender;
   });
 
+  //draw initial chart
   finalData = getData();
+  scales = getScales(finalData);
   drawSideChart();
+  drawGrid(scales.y);
   drawChart(finalData);
 
 }); //end load data
@@ -108,13 +111,23 @@ function getData(sorted='default') {
 
   if (sorted == 'ascending') {
     nestedData.sort(function(a, b) {
-            return d3.ascending(a.value.median, b.value.median)}
+            if (a.value.median == b.value.median) {
+              return d3.ascending(a.value.q3, b.value.q3)
+            }
+
+            else {return d3.ascending(a.value.median, b.value.median)}
+            }
           );
   }
 
   else if (sorted == 'descending') {
     nestedData.sort(function(a, b) {
-            return d3.descending(a.value.median, b.value.median)}
+            if (a.value.median == b.value.median) {
+              return d3.descending(a.value.q3, b.value.q3)
+            }
+
+            else {return d3.descending(a.value.median, b.value.median)}
+            }
           );
   }
 
@@ -209,7 +222,7 @@ function drawChart(finalData) {
   xScale = scales.x
   yScale = scales.y
 
-  drawGrid(yScale, chart);
+  //drawGrid(yScale, chart);
 
   //create gradient to fade max lines https://www.freshconsulting.com/d3-js-gradients-the-easy-way/
   var defs = chart.append("defs");
@@ -492,7 +505,7 @@ function appendLabels(xScale, yScale) {
 
 
 
-function drawGrid(yScale, chart) {
+function drawGrid(yScale) {
 
   //draw y axis
   var grid = chart.append('g')
@@ -583,7 +596,9 @@ function drawGrid(yScale, chart) {
 }; //end drawGrid
 
 
-//SORTING
+
+
+//sort
 var sortMenu = d3.select('#sort-menu')
 
 sortMenu.on('change', function() {
@@ -591,10 +606,15 @@ sortMenu.on('change', function() {
                             .property("value");
   console.log(sortMethod)
 
-  finalData = getData(sortMethod)
   removePlots();
-  drawChart(finalData)
+  finalData = getData(sortMethod);
+  scales = getScales(finalData);
+  drawSideChart();
+  drawGrid(scales.y);
+  drawChart(finalData);
 })
+
+
 
 
 //update
@@ -609,6 +629,9 @@ variableMenu.on('change', function() {
 
   removePlots();
   finalData = getData();
+  scales = getScales(finalData);
+  drawSideChart();
+  drawGrid(scales.y);
   drawChart(finalData);
 
   footnotes = {'type':  '*Some cases involve multiple types of trafficking.' +
