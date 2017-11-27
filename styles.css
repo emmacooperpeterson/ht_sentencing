@@ -23,6 +23,14 @@
   top: 40px;
 }
 
+#source {
+  font-size: 11px;
+  font-family: 'Courier New', serif;
+  position: absolute;
+  left: 50px;
+  top: 70px;
+}
+
 /* SIDEBAR */
 #sidebar {
   height: 450px;
@@ -80,11 +88,10 @@ li {
   position: absolute;
   left: 0px;
   top: 0px;
-  /*background-color: yellow;*/
-
 }
 
-.footnote {
+
+.footnote, .outlier-footnote {
   font-family: 'Courier New', serif;
   font-size: 9px;
 }

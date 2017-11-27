@@ -82,6 +82,7 @@ d3.json("ht_sentencing.json", function(error, data) {
   drawSideChart();
   drawGrid(scales.y);
   drawChart(finalData);
+  xLabel();
 
 }); //end load data
 
@@ -148,7 +149,7 @@ function getScales(finalData) {
                   .range([0,height])
 
   var yScale = d3.scaleLinear()
-                  .domain([40, 0])
+                  .domain([30, 0])
                   .range([width, 0]);
 
   return {'x': xScale, 'y': yScale}
@@ -284,8 +285,8 @@ function drawChart(finalData) {
                 .attr("x", function(d) {return yScale(d.value.q3);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {
-                  if (d.value.max > 40) {
-                    return yScale(40-d.value.q3)
+                  if (d.value.max > 30) {
+                    return yScale(30-d.value.q3)
                   }
                   else {return yScale(d.value.max - d.value.q3);}
                 })
@@ -297,7 +298,7 @@ function drawChart(finalData) {
   //if ()
   //append gradient lines
   boxplotGroups.append("rect")
-                .attr('x', function(d) {return yScale(35)})
+                .attr('x', function(d) {return yScale(25)})
                 .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr('height', 12)
                 .attr('width', 0)
@@ -305,7 +306,7 @@ function drawChart(finalData) {
                 .duration(1000)
                 .delay(2000)
                 .attr('class', 'boxplot')
-                .attr("x", function(d) {return yScale(35);})
+                .attr("x", function(d) {return yScale(25);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {return yScale(5);})
                 .attr("height", 12)
@@ -398,18 +399,20 @@ function drawChart(finalData) {
           .attr('y1', 0)
           .attr('x2', 0)
           .attr('y2', height)
-          .attr('stroke-width', 0.5)
+          .attr('stroke-width', 3)
           .attr('stroke', 'black')
           .attr('stroke-dasharray', '5,5')
+          .attr('opacity', 0.25)
           .transition()
           .duration(500)
           .attr('x1', yScale(xValues.median))
           .attr('y1', 0)
           .attr('x2', yScale(xValues.median))
           .attr('y2', height)
-          .attr('stroke-width', 0.5)
+          .attr('stroke-width', 3)
           .attr('stroke', 'black')
           .attr('stroke-dasharray', '5,5')
+          .attr('opacity', 0.25)
 
     //box to hold stats
     chart.append('rect')
@@ -505,53 +508,9 @@ function appendLabels(xScale, yScale) {
 
 
 
-function drawGrid(yScale) {
-
-  //draw y axis
-  var grid = chart.append('g')
-                  .attr('id', 'grid')
-
-  grid.append('g')
-      .call(d3.axisTop(yScale)
-              .tickSizeInner(0)
-              .tickSizeOuter(0)
-              .tickPadding(10))
-      .attr('id', 'grid-text')
-
-
-  //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-  function make_x_gridlines() {return d3.axisBottom(yScale)}
-
-  //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
-  grid.append("g")
-        .attr("class", "lines")
-        .attr("transform", "translate(0," + height + ")")
-        .call(make_x_gridlines()
-            .tickSize(-height)
-            .tickFormat(""))
-
-  //remove horizonal lines from y axis https://bl.ocks.org/mbostock/3371592
-  function customYAxis(g) {
-    grid.call(yScale);
-    grid.select(".domain").remove();
-  }
-
-  //run this twice because there are two horizonal lines to remove
-  for (i=0; i<2; i++) {
-    grid.append("g")
-         .call(customYAxis);
-  }
-
-  //y axis label
-  grid.append("text")
-    .attr("class", "axisLabel")
-    .attr("y", -35)
-    .attr("x", yScale(20))
-    .attr('text-anchor', 'middle')
-    .text("Length of Sentence (in years)");
-
+function xLabel() {
   //x axis label
-  grid.append("text")
+  chart.append("text")
     .attr('transform', 'rotate(-90' + ',' + -20 + ',' + height/2 + ')')
     .attr("y", height/2)
     .attr("x", -20)
@@ -570,28 +529,82 @@ function drawGrid(yScale) {
                                 .property("value");
       return xLabels[variable]
     });
+}
+
+
+
+
+
+function drawGrid(yScale) {
+
+  //draw y axis
+  var grid = chart.append('g')
+                  .attr('id', 'grid')
+
+  grid.append('g')
+      .call(d3.axisTop(yScale)
+              .tickSizeInner(0)
+              .tickSizeOuter(0)
+              .tickPadding(10)
+              .tickValues([0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30]))
+      .attr('id', 'grid-text')
+
+
+  //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+  function make_x_gridlines() {return d3.axisBottom(yScale)}
+
+  //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
+  grid.append("g")
+        .attr("class", "lines")
+        .attr("transform", "translate(0," + height + ")")
+        .call(make_x_gridlines()
+            .tickSize(-height)
+            .tickFormat("")
+            .tickValues([0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30]))
+
+  //remove horizonal lines from y axis https://bl.ocks.org/mbostock/3371592
+  function customYAxis(g) {
+    grid.call(yScale);
+    grid.select(".domain").remove();
+  }
+
+  //run this twice because there are two horizonal lines to remove
+  for (i=0; i<2; i++) {
+    grid.append("g")
+         .call(customYAxis);
+  }
+
+  //y axis label
+  grid.append("text")
+    .attr("class", "axisLabel")
+    .attr("y", -35)
+    .attr("x", yScale(15))
+    .attr('text-anchor', 'middle')
+    .text("Length of Sentence (in years)");
 
   chart.append('text')
-        .attr('class', 'footnote')
+        .attr('class', 'outlier-footnote')
         .attr('opacity', 0)
         .transition()
         .duration(1000)
         .attr('x', 0)
         .attr('y', height + 30)
         .attr('opacity', 1)
-        .text('*Sentences longer than 40 years are more than two' +
-              ' standard deviations above the mean and are' +
+        .text('*Sentences longer than 30 years are more than 1.5' +
+              ' times higher than the 75th percentile and are' +
               ' therefore considered outliers.')
 
   chart.append('text')
-        .attr('class', 'footnote')
+        .attr('class', 'outlier-footnote')
         .attr('opacity', 0)
         .transition()
         .duration(1000)
         .attr('x', 0)
         .attr('y', height + 40)
         .attr('opacity', 1)
-        .text('Hover over each plot to view actual maximum sentences.')
+        .text('These account for about 4% of all sentences, ' +
+              'and are excluded from this graph. Hover over each plot ' +
+              'to view actual maximum sentences.')
 
 }; //end drawGrid
 
@@ -606,11 +619,11 @@ sortMenu.on('change', function() {
                             .property("value");
   console.log(sortMethod)
 
-  removePlots();
+  removePlots(true);
   finalData = getData(sortMethod);
   scales = getScales(finalData);
   drawSideChart();
-  drawGrid(scales.y);
+  //drawGrid(scales.y);
   drawChart(finalData);
 })
 
@@ -631,8 +644,9 @@ variableMenu.on('change', function() {
   finalData = getData();
   scales = getScales(finalData);
   drawSideChart();
-  drawGrid(scales.y);
+  //drawGrid(scales.y);
   drawChart(finalData);
+  xLabel();
 
   footnotes = {'type':  '*Some cases involve multiple types of trafficking.' +
                         ' To avoid confusion, cases included here involved' +
@@ -658,7 +672,7 @@ variableMenu.on('change', function() {
 }) //end update process
 
 
-function removePlots() {
+function removePlots(sorting=false) {
   var boxplots = d3.selectAll('.plot')
   var grid = d3.select('#grid')
   var labs = d3.selectAll('.labels')
@@ -674,9 +688,11 @@ function removePlots() {
   // xLab.transition().duration(1000).attr('opacity', 0).remove();
 
   boxplots.remove();
-  grid.remove();
+  //grid.remove();
   labs.remove();
   clippaths.remove();
-  xLab.remove();
+  if (!sorting) {
+    xLab.remove();
+  }
   footnotes.remove();
 }
