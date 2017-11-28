@@ -1,11 +1,11 @@
 //set margins
 var margin = {top: 100, right: 100, bottom: 100, left: 100};
-var width = 900 - margin.left - margin.top;
-var height = 700 - margin.top - margin.bottom;
 var totalWidth = 900;
 var totalHeight = 700;
+var width = totalWidth - margin.left - margin.top;
+var height = totalHeight - margin.top - margin.bottom;
 
-//boxplot colors
+//boxplot colors and labels
 var colors = {0: ['#a85c0f','#cc9060','#eac6ad'], //orange
               1: ['#2c4443','#6d7e7d','#b4bdbc'], //teal
               2: ['#5e5c30','#928e6f','#c8c6b5'], //green
@@ -42,11 +42,10 @@ var chart = svg.append('g')
 var svgSmall = d3.select('#small-chart')
                     .append('svg')
                     .attr('width', totalWidth/2.25)
-                    .attr('height', totalHeight/2.8)
+                    .attr('height', totalHeight/2.8);
 
 var smallChart = svgSmall.append('g')
-
-
+                          .attr("transform", "translate(0," + margin.top/2.5 + ")");
 
 //load data
 d3.json("ht_sentencing.json", function(error, data) {
@@ -73,14 +72,10 @@ d3.json("ht_sentencing.json", function(error, data) {
   finalData = getData();
   scales = getScales(finalData);
   drawSideChart();
-  drawGrid(scales.y);
   drawChart(finalData);
+  drawGrid(scales.y);
   xLabel();
-  window.setTimeout('delayScatters(dataset)', 3000);
-
-
-
-
+  window.setTimeout('delayScatters(dataset)', 3000); //better way to handle this? i cant select the labels until they appear
 
 }); //end load data
 
@@ -88,7 +83,6 @@ d3.json("ht_sentencing.json", function(error, data) {
 
 
 function getData(sorted='default') {
-  //subset data based on selected variable and get 5-number summary
 
   selectedVariable = d3.select('input[name="variable"]:checked').property("value");
 
@@ -107,7 +101,6 @@ function getData(sorted='default') {
       .sortKeys(d3.ascending) //default sorting by key so years appear in order
       .entries(filteredData);
 
-
   if (sorted == 'ascending') {
     nestedData.sort(function(a, b) {
             if (a.value.median == b.value.median) {
@@ -116,7 +109,7 @@ function getData(sorted='default') {
 
             else {return d3.ascending(a.value.median, b.value.median)}
             }
-          );
+    );
   }
 
   else if (sorted == 'descending') {
@@ -127,11 +120,10 @@ function getData(sorted='default') {
 
             else {return d3.descending(a.value.median, b.value.median)}
             }
-          );
+    );
   }
 
   return nestedData;
-
 } //end getData
 
 
@@ -142,7 +134,7 @@ function getScales(finalData) {
 
   var xScale = d3.scaleBand()
                   .domain(finalData.map(function(d) {return d.key;}))
-                  .range([0,height])
+                  .range([0,height]);
 
   var yScale = d3.scaleLinear()
                   .domain([30, 0])
@@ -157,32 +149,34 @@ function getScales(finalData) {
 
 function drawSideChart() {
 
-  var xPoints = {75: 'minimum', 125: '25%', 200: 'median',
-                275: '75%', 325: 'maximum'};
+  var xPoints = {'min': [75, 'minimum'], 'q1': [125, '25%'],
+                'med': [200, 'median'], 'q3': [275, '75%'],
+                'max': [325, 'maximum']
+                };
 
   //append min and max bars
   smallChart.append('rect')
             .attr('class', 'chart-desc')
-            .attr('y', 45)
-            .attr('x', 75)
-            .attr('width', 250)
+            .attr('y', margin.top/2)
+            .attr('x', xPoints.min[0])
+            .attr('width', xPoints.max[0] - xPoints.min[0])
             .attr('height', 12)
             .style('fill', '#d6d6d6');
 
   //append iqr bars
   smallChart.append('rect')
             .attr('class', 'chart-desc')
-            .attr('y', 45)
-            .attr('x', 125)
-            .attr('width', 150)
+            .attr('y', margin.top/2)
+            .attr('x', xPoints.q1[0])
+            .attr('width', xPoints.q3[0] - xPoints.q1[0])
             .attr('height', 12)
             .style('fill', '#afafaf');
 
   //append median
   smallChart.append('circle')
             .attr('class', 'chart-desc')
-            .attr('cx', 200)
-            .attr('cy', 50)
+            .attr('cx', xPoints.med[0])
+            .attr('cy', margin.top/1.79)
             .attr('r', 15)
             .style('fill', '#898989');
 
@@ -190,23 +184,21 @@ function drawSideChart() {
     //append text
     smallChart.append('text')
               .attr('class', 'chart-desc-text')
-              .attr('transform', 'rotate(25' + ',' + x + ',' + 85 + ')')
-              .attr('x', x)
+              .attr('transform', 'rotate(25' + ',' + xPoints[x][0] + ',' + 85 + ')')
+              .attr('x', xPoints[x][0])
               .attr('y', 85)
-              .text(xPoints[x])
+              .text(xPoints[x][1])
 
     //append lines
     smallChart.append('line')
               .attr('class', 'chart-desc')
-              .attr('x1', x)
-              .attr('y1', 65)
-              .attr('x2', x)
-              .attr('y2', 75)
+              .attr('x1', xPoints[x][0])
+              .attr('y1', margin.top/1.5)
+              .attr('x2', xPoints[x][0])
+              .attr('y2', margin.top/1.3)
               .attr('stroke-width', 1)
               .attr('stroke', 'black')
-
   } //end loop
-
 }; // end makeSideChart
 
 
@@ -218,8 +210,6 @@ function drawChart(finalData) {
   scales = getScales(finalData);
   xScale = scales.x
   yScale = scales.y
-
-  //drawGrid(yScale, chart);
 
   //create gradient to fade max lines https://www.freshconsulting.com/d3-js-gradients-the-easy-way/
   var defs = chart.append("defs");
@@ -289,10 +279,8 @@ function drawChart(finalData) {
                 })
                 .attr("height", 12)
                 .attr("fill", function(d) {return colors[d.key][2]})
-                //.attr('fill', 'url(#svgGradient)')
                 .attr('opacity', 1);
 
-  //if ()
   //append gradient lines
   boxplotGroups.append("rect")
                 .attr('x', function(d) {return yScale(25)})
@@ -307,10 +295,8 @@ function drawChart(finalData) {
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {return yScale(5);})
                 .attr("height", 12)
-                //.attr("fill", function(d) {return colors[d.key][2]})
                 .attr('fill', 'url(#svgGradient)')
                 .attr('opacity', 1);
-
 
   //append q1 lines
   boxplotGroups.append("rect")
@@ -347,7 +333,7 @@ function drawChart(finalData) {
                 .attr('opacity', 1);
 
   //append circles
-  boxplotGroups.append('circle') //why does this work when i initially selected rect?
+  boxplotGroups.append('circle')
                 .attr('cy', function(d) {return xScale(d.key) + xScale.bandwidth()/2;})
                 .attr('cx', -20)
                 .attr('r', 15)
@@ -372,22 +358,20 @@ function drawChart(finalData) {
         .attr('width', width)
         .attr('height', height)
 
-
+  //add variable labels
   appendLabels(xScale, yScale);
-
 
   //tooltip on
   boxplotGroups.on('mouseover', function(d) {
-    plot = d3.select(this);
-    xValues = plot._groups[0][0].__data__.value;
-    color = plot._groups[0][0].__data__.key;
-    y = parseFloat(plot._groups[0][0].childNodes[0].attributes[1].value);
+    var plot = d3.select(this);
+    var xValues = plot._groups[0][0].__data__.value;
+    var y = parseFloat(plot._groups[0][0].childNodes[0].attributes[1].value);
+    var color = plot._groups[0][0].__data__.key;
+    var coordinates = d3.mouse(this);
+    var xCoord = coordinates[0];
 
     var stats = {'min': 'min: ', 'q1': '25%: ', 'median': 'median: ',
                   'q3': '75%: ', 'max': 'max: ', 'count': 'cases: '}
-
-    var coordinates = d3.mouse(this);
-    var xCoord = coordinates[0];
 
     //comparison line
     chart.append('line')
@@ -447,8 +431,7 @@ function drawChart(finalData) {
 
       i = i + 15
     } //end loop
-
-    }); //end tooltip on
+  }); //end tooltip on
 
   //tooltip off
   boxplotGroups.on('mouseout', function() {
@@ -458,7 +441,6 @@ function drawChart(finalData) {
       .attr('opacity', 0)
       .remove();
    })
-
 }; //end drawChart
 
 
@@ -492,7 +474,7 @@ function appendLabels(xScale, yScale) {
         .transition()
         .duration(1500)
         .delay(2500)
-        .attr('class', 'labels')
+        .attr('class', 'var-labels')
         .attr('id', function(d) {return 'label' + d.key})
         .attr('x', 708)
         .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 + 1;})
@@ -500,14 +482,13 @@ function appendLabels(xScale, yScale) {
         .attr('alignment-baseline', 'middle')
         .attr('fill', 'black')
         .text(function(d) {return labels[selectedVariable][d.key]})
-
 }; //end appendLabels
 
 
 
 
 function xLabel() {
-  //x axis label
+
   chart.append("text")
     .attr('transform', 'rotate(-90' + ',' + -20 + ',' + height/2 + ')')
     .attr("y", height/2)
@@ -527,7 +508,7 @@ function xLabel() {
                                 .property("value");
       return xLabels[variable]
     });
-}
+}; //end xLabel
 
 
 
@@ -545,7 +526,7 @@ function drawGrid(yScale) {
               .tickSizeOuter(0)
               .tickPadding(10)
               .tickValues([0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30]))
-      .attr('id', 'grid-text')
+      .attr('id', 'grid-ticks')
 
 
   //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
@@ -580,6 +561,7 @@ function drawGrid(yScale) {
     .attr('text-anchor', 'middle')
     .text("Length of Sentence (in years)");
 
+  //permanent footnote
   chart.append('text')
         .attr('class', 'outlier-footnote')
         .attr('opacity', 0)
@@ -603,32 +585,28 @@ function drawGrid(yScale) {
         .text('These account for about 4% of all sentences, ' +
               'and are excluded from this graph. Hover over each plot ' +
               'to view actual maximum sentences.')
-
 }; //end drawGrid
 
 
 
 
-//sort
+//sort boxplots
 var sortMenu = d3.select('#sort-menu')
 
 sortMenu.on('change', function() {
   var sortMethod = d3.select('input[name="sort-by"]:checked')
                             .property("value");
-  console.log(sortMethod)
-
   removePlots(true);
   finalData = getData(sortMethod);
   scales = getScales(finalData);
-  //drawGrid(scales.y);
   drawChart(finalData);
   window.setTimeout('delayScatters(dataset)', 3000);
-})
+});
 
 
 
 
-//update
+//update boxplots
 var variableMenu = d3.select("#include-menu")
 
 variableMenu.on('change', function() {
@@ -641,12 +619,9 @@ variableMenu.on('change', function() {
   removePlots();
   finalData = getData();
   scales = getScales(finalData);
-  //drawGrid(scales.y);
   drawChart(finalData);
   xLabel();
   window.setTimeout('delayScatters(dataset)', 3000);
-
-
 
   footnotes = {'type':  '*Some cases involve multiple types of trafficking.' +
                         ' To avoid confusion, cases included here involved' +
@@ -668,37 +643,26 @@ variableMenu.on('change', function() {
           .attr('opacity', 1)
           .text(footnotes[selectedVariable])
   }
-
-}) //end update process
+}); //end update process
 
 
 function removePlots(sorting=false) {
   var boxplots = d3.selectAll('.plot')
-  var grid = d3.select('#grid')
-  var labs = d3.selectAll('.labels')
+  var labs = d3.selectAll('.var-labels')
   var clippaths = d3.select('#chart-area')
   var xLab = d3.select('#x-label')
   var footnotes = d3.selectAll('.footnote')
   var dots = d3.selectAll('.dot')
-  //THIS CAUSES drawChart TO NOT WORK
-  // boxplots.transition().duration(1000).attr('opacity', 0).remove();
-  // grid.transition().duration(1000).attr('opacity', 0).remove();
-  // labs.transition().duration(1000).attr('opacity', 0).remove();
-  // clippaths.transition().duration(1000).attr('opacity', 0).remove();
-  // xLab.transition().duration(1000).attr('opacity', 0).remove();
+
   dots.remove();
   boxplots.remove();
-  //grid.remove();
   labs.remove();
   clippaths.remove();
-
-  if (!sorting) { //don't remove the x label if we're just sorting
-    xLab.remove();
-  };
-
   footnotes.remove();
-}; // end remove Plots
 
+  //don't remove the x label if we're just sorting
+  if (!sorting) {xLab.remove();};
+}; // end remove Plots
 
 
 
@@ -719,43 +683,40 @@ function drawScatter(dataset, variable, category, catLength) {
           }
           else {
            return yScale(d.sentence) - Math.random() * 10
-         }
+          }
         })
         .attr('cy', function(d, i) {
-          if (i%2 === 0) { //https://bl.ocks.org/duhaime/14c30df6b82d3f8094e5a51e5fff739a
+          if (i%2 === 0) {
             return xScale(d[variable]) + xScale.bandwidth()/2
           }
           else {
            return xScale(d[variable]) + xScale.bandwidth()/2
-         }
+          }
         })
         .transition()
         .duration(1500)
         .ease(d3.easeBackOut)
         .attr('cx', function(d) {return yScale(d.sentence) + Math.random()*20})
         .attr('cy', function(d, i) {
-          if (i%2 === 0) { //https://bl.ocks.org/duhaime/14c30df6b82d3f8094e5a51e5fff739a
+          if (i%2 === 0) {
             return xScale(d[variable]) + xScale.bandwidth()/2 + Math.random() * height/(2*catLength)
           }
           else {
            return xScale(d[variable]) + xScale.bandwidth()/2 - Math.random() * height/(2*catLength)
-         }
+          }
         })
         .attr('r', 4)
-        .attr('stroke-opacity', 1)
+        .attr('stroke-opacity', 0.5)
         .attr('fill-opacity', 0)
         .attr('stroke-width', 1)
-        .attr('stroke', function(d) {return colors[d[variable]][0]})
+        .attr('stroke', function(d) {return colors[d[variable]][0]});
+}; //end drawScatter
 
 
-
-
-} //end drawScatter
-
-var clicked = false;
 
 function delayScatters(dataset) {
-  var categories = d3.selectAll('.labels')
+  var clicked = false; //need a better way to handle this bc this isn't tied to the specific thing that was clicked
+  var categories = d3.selectAll('.var-labels')
   var catLength = categories._groups[0].length
   var selectedVariable = d3.select('input[name = "variable"]:checked')
                             .property("value");
