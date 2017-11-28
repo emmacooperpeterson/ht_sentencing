@@ -680,13 +680,14 @@ function removePlots(sorting=false) {
   var clippaths = d3.select('#chart-area')
   var xLab = d3.select('#x-label')
   var footnotes = d3.selectAll('.footnote')
+  var dots = d3.selectAll('.dot')
   //THIS CAUSES drawChart TO NOT WORK
   // boxplots.transition().duration(1000).attr('opacity', 0).remove();
   // grid.transition().duration(1000).attr('opacity', 0).remove();
   // labs.transition().duration(1000).attr('opacity', 0).remove();
   // clippaths.transition().duration(1000).attr('opacity', 0).remove();
   // xLab.transition().duration(1000).attr('opacity', 0).remove();
-
+  dots.remove();
   boxplots.remove();
   //grid.remove();
   labs.remove();
@@ -729,7 +730,7 @@ function drawScatter(dataset, variable, category) {
 
 } //end drawScatter
 
-
+var clicked = false;
 
 function go(dataset) {
   var categories = d3.selectAll('.labels')
@@ -742,6 +743,16 @@ function go(dataset) {
     var cat = parseFloat(plotID.substr(plotID.length - 1))
 
     console.log(cat);
-    drawScatter(dataset, selectedVariable, cat)
+
+    if (clicked == false) {
+      drawScatter(dataset, selectedVariable, cat)
+      clicked = true
+    }
+
+    else if (clicked == true) {
+    scatters = d3.selectAll('.dot')
+    scatters.remove()
+    clicked = false
+  }
   })
 }
