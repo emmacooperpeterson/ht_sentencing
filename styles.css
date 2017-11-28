@@ -116,61 +116,6 @@ li {
 }
 
 
-/* CIRCLES */
-
-.white-med {
-  fill: rgb(178, 107, 24)
-}
-
-.black-med {
-  fill: rgb(42, 69, 76)
-}
-
-.hisp-med {
-  fill: rgb(94, 93, 64)
-}
-
-.asian-med {
-  fill: rgb(183, 150, 13)
-}
-
-
-/* MAX/MIN BARS */
-
-.white-max {
-  fill: rgba(178, 107, 24, 0.3)
-}
-
-.black-max {
-  fill: rgba(42, 69, 76, 0.3)
-}
-
-.hisp-max {
-  fill: rgba(94, 93, 64, 0.3)
-}
-
-.asian-max {
-  fill: rgba(183, 150, 13, 0.3)
-}
-
-
-/* IQR BARS */
-
-.white-iqr {
-  fill: rgba(178, 107, 24, 0.7)
-}
-
-.black-iqr {
-  fill: rgba(42, 69, 76, 0.7)
-}
-
-.hisp-iqr {
-  fill: rgba(94, 93, 64, 0.7)
-}
-
-.asian-iqr {
-  fill: rgba(183, 150, 13, 0.7)
-}
 
 
 

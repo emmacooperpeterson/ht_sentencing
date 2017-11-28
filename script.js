@@ -704,25 +704,48 @@ function removePlots(sorting=false) {
 
 
 
-function drawScatter(dataset, variable, category) {
+function drawScatter(dataset, variable, category, catLength) {
 
   chart.selectAll('dot')
         .data(dataset)
         .enter()
-        .filter(function(d) {return d[variable] == category})
+        .filter(function(d) {return d[variable] == category & d.sentence <= 30})
         .append('circle')
         .attr('class', function(d) {return 'dot ' + 'dot' + d[variable]})
-        .attr('cx', function(d) {return yScale(d.sentence) })
-        .attr('cy', function(d, i) {
+        .attr('stroke-opacity', 0)
+        .attr('cx', function(d, i) {
           if (i%2 === 0) { //https://bl.ocks.org/duhaime/14c30df6b82d3f8094e5a51e5fff739a
-            return xScale(d[variable]) + xScale.bandwidth()/2 + Math.random() * 20
+            return yScale(d.sentence) + Math.random() * 10
           }
           else {
-           return xScale(d[variable]) + xScale.bandwidth()/2 - Math.random() * 20
+           return yScale(d.sentence) - Math.random() * 10
          }
         })
-        .attr('r', 5)
-        .attr('opacity', 0.5)
+        .attr('cy', function(d, i) {
+          if (i%2 === 0) { //https://bl.ocks.org/duhaime/14c30df6b82d3f8094e5a51e5fff739a
+            return xScale(d[variable]) + xScale.bandwidth()/2
+          }
+          else {
+           return xScale(d[variable]) + xScale.bandwidth()/2
+         }
+        })
+        .transition()
+        .duration(1500)
+        .ease(d3.easeBackOut)
+        .attr('cx', function(d) {return yScale(d.sentence) + Math.random()*20})
+        .attr('cy', function(d, i) {
+          if (i%2 === 0) { //https://bl.ocks.org/duhaime/14c30df6b82d3f8094e5a51e5fff739a
+            return xScale(d[variable]) + xScale.bandwidth()/2 + Math.random() * height/(2*catLength)
+          }
+          else {
+           return xScale(d[variable]) + xScale.bandwidth()/2 - Math.random() * height/(2*catLength)
+         }
+        })
+        .attr('r', 4)
+        .attr('stroke-opacity', 1)
+        .attr('fill-opacity', 0)
+        .attr('stroke-width', 1)
+        .attr('stroke', function(d) {return colors[d[variable]][0]})
 
 
 
@@ -733,6 +756,7 @@ var clicked = false;
 
 function delayScatters(dataset) {
   var categories = d3.selectAll('.labels')
+  var catLength = categories._groups[0].length
   var selectedVariable = d3.select('input[name = "variable"]:checked')
                             .property("value");
 
@@ -742,7 +766,7 @@ function delayScatters(dataset) {
     var box = d3.select('#plot' + cat)
 
     if (!clicked) {
-      drawScatter(dataset, selectedVariable, cat)
+      drawScatter(dataset, selectedVariable, cat, catLength)
       box.attr('opacity', 0)
       clicked = true
     }
