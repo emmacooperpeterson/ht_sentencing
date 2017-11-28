@@ -29,13 +29,6 @@ var xLabels = {'judge_race': 'Judge Race', 'judge_gender': 'Judge Gender',
                 'type': 'Type of Trafficking', 'region': 'U.S. Region',
                 'year_group': 'Year'}
 
-var counts = {'judge_race': {}, 'judge_gender': {},
-                'appointed_by': {},
-                'def_race': {}, 'def_gender': 'Defendant Gender',
-                'vic_gender': 'Victim Gender', 'recruit': 'Method of Recruitment',
-                'type': 'Type of Trafficking', 'region': 'U.S. Region',
-                'year_group': 'Year'}
-
 //set up svgs and charts
 var svg = d3.select("#chart")
             .append('svg')
@@ -83,6 +76,11 @@ d3.json("ht_sentencing.json", function(error, data) {
   drawGrid(scales.y);
   drawChart(finalData);
   xLabel();
+  window.setTimeout('go(dataset)', 3000);
+
+
+
+
 
 }); //end load data
 
@@ -376,8 +374,8 @@ function drawChart(finalData) {
         .attr('height', height)
 
 
-
   appendLabels(xScale, yScale);
+
 
   //tooltip on
   boxplotGroups.on('mouseover', function(d) {
@@ -496,6 +494,7 @@ function appendLabels(xScale, yScale) {
         .duration(1500)
         .delay(2500)
         .attr('class', 'labels')
+        .attr('id', function(d) {return 'label' + d.key})
         .attr('x', 708)
         .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 + 1;})
         .attr('text-anchor', 'left')
@@ -622,9 +621,9 @@ sortMenu.on('change', function() {
   removePlots(true);
   finalData = getData(sortMethod);
   scales = getScales(finalData);
-  drawSideChart();
   //drawGrid(scales.y);
   drawChart(finalData);
+  window.setTimeout('go(dataset)', 3000);
 })
 
 
@@ -643,10 +642,12 @@ variableMenu.on('change', function() {
   removePlots();
   finalData = getData();
   scales = getScales(finalData);
-  drawSideChart();
   //drawGrid(scales.y);
   drawChart(finalData);
   xLabel();
+  window.setTimeout('go(dataset)', 3000);
+
+
 
   footnotes = {'type':  '*Some cases involve multiple types of trafficking.' +
                         ' To avoid confusion, cases included here involved' +
@@ -679,7 +680,6 @@ function removePlots(sorting=false) {
   var clippaths = d3.select('#chart-area')
   var xLab = d3.select('#x-label')
   var footnotes = d3.selectAll('.footnote')
-
   //THIS CAUSES drawChart TO NOT WORK
   // boxplots.transition().duration(1000).attr('opacity', 0).remove();
   // grid.transition().duration(1000).attr('opacity', 0).remove();
@@ -691,8 +691,57 @@ function removePlots(sorting=false) {
   //grid.remove();
   labs.remove();
   clippaths.remove();
-  if (!sorting) {
+
+  if (!sorting) { //don't remove the x label if we're just sorting
     xLab.remove();
-  }
+  };
+
   footnotes.remove();
+}; // end remove Plots
+
+
+
+
+
+
+function drawScatter(dataset, variable, category) {
+
+  chart.selectAll('dot')
+        .data(dataset)
+        .enter()
+        .filter(function(d) {return d[variable] == category})
+        .append('circle')
+        .attr('class', function(d) {return 'dot ' + 'dot' + d[variable]})
+        .attr('cx', function(d) {return yScale(d.sentence) })
+        .attr('cy', function(d, i) {
+          if (i%2 === 0) { //https://bl.ocks.org/duhaime/14c30df6b82d3f8094e5a51e5fff739a
+            return xScale(d[variable]) + xScale.bandwidth()/2 + Math.random() * 20
+          }
+          else {
+           return xScale(d[variable]) + xScale.bandwidth()/2 - Math.random() * 20
+         }
+        })
+        .attr('r', 5)
+        .attr('opacity', 0.5)
+
+
+
+
+} //end drawScatter
+
+
+
+function go(dataset) {
+  var categories = d3.selectAll('.labels')
+  var selectedVariable = d3.select('input[name = "variable"]:checked')
+                            .property("value");
+
+
+  categories.on('click', function() {
+    var plotID = this.id;
+    var cat = parseFloat(plotID.substr(plotID.length - 1))
+
+    console.log(cat);
+    drawScatter(dataset, selectedVariable, cat)
+  })
 }
