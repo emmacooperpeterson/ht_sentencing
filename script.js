@@ -76,7 +76,7 @@ d3.json("ht_sentencing.json", function(error, data) {
   drawGrid(scales.y);
   drawChart(finalData);
   xLabel();
-  window.setTimeout('go(dataset)', 3000);
+  window.setTimeout('delayScatters(dataset)', 3000);
 
 
 
@@ -129,8 +129,6 @@ function getData(sorted='default') {
             }
           );
   }
-
-  console.log(nestedData)
 
   return nestedData;
 
@@ -252,6 +250,7 @@ function drawChart(finalData) {
                         .append('g')
                         .attr('id', function(d) {return 'plot' + d.key})
                         .attr('class', 'plot')
+                        .attr('opacity', 1)
 
   //append min lines
   boxplotGroups.append("rect")
@@ -623,7 +622,7 @@ sortMenu.on('change', function() {
   scales = getScales(finalData);
   //drawGrid(scales.y);
   drawChart(finalData);
-  window.setTimeout('go(dataset)', 3000);
+  window.setTimeout('delayScatters(dataset)', 3000);
 })
 
 
@@ -645,7 +644,7 @@ variableMenu.on('change', function() {
   //drawGrid(scales.y);
   drawChart(finalData);
   xLabel();
-  window.setTimeout('go(dataset)', 3000);
+  window.setTimeout('delayScatters(dataset)', 3000);
 
 
 
@@ -732,27 +731,27 @@ function drawScatter(dataset, variable, category) {
 
 var clicked = false;
 
-function go(dataset) {
+function delayScatters(dataset) {
   var categories = d3.selectAll('.labels')
   var selectedVariable = d3.select('input[name = "variable"]:checked')
                             .property("value");
 
-
   categories.on('click', function() {
     var plotID = this.id;
     var cat = parseFloat(plotID.substr(plotID.length - 1))
+    var box = d3.select('#plot' + cat)
 
-    console.log(cat);
-
-    if (clicked == false) {
+    if (!clicked) {
       drawScatter(dataset, selectedVariable, cat)
+      box.attr('opacity', 0)
       clicked = true
     }
+    else if (clicked) {
+      scatters = d3.selectAll('.dot')
 
-    else if (clicked == true) {
-    scatters = d3.selectAll('.dot')
-    scatters.remove()
-    clicked = false
-  }
-  })
-}
+      scatters.remove()
+      box.attr('opacity', 1)
+      clicked = false
+    }
+  }) //end categories.on
+} //end delayScatters
