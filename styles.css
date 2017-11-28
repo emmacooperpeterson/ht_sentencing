@@ -1,16 +1,7 @@
-.plot {
-  -moz-transition: all 0.5s;
-  -o-transition: all 0.5s;
-  -webkit-transition: all 0.5s;
-}
-
-.plot:hover {
-  opacity: 0.5;
-}
+/* BACKGROUND AND HEADER */
 
 #container {
   background-color: #f4f4f4;
-  /*background-color: pink;*/
   height: 800px;
   width: 1300px;
 }
@@ -31,14 +22,16 @@
   top: 70px;
 }
 
+
+
 /* SIDEBAR */
+
 #sidebar {
   height: 450px;
   width: 400px;
   position: absolute;
   left: 0px;
   top: 100px;
-  /*background-color: lightblue;*/
 }
 
 .side-header {
@@ -64,6 +57,7 @@ li {
 }
 
 
+
 /* SMALL CHART */
 
 #small-chart {
@@ -72,7 +66,6 @@ li {
   height: 250px;
   left: 0px;
   top: 550px;
-  /*background-color: lightgreen;*/
 }
 
 .chart-desc-text {
@@ -80,26 +73,18 @@ li {
   font-size: 10px;
 }
 
-/* CHART */
 
-#chart-title {
-  height: 100px;
-  width: 1300px;
-  position: absolute;
-  left: 0px;
-  top: 0px;
+
+/* MAIN CHART */
+
+#grid-ticks {
+  font-family: 'Courier New', serif;
+  font-size: 14px;
 }
-
 
 .footnote, .outlier-footnote {
   font-family: 'Courier New', serif;
   font-size: 9px;
-}
-
-
-#grid-text {
-  font-family: 'Courier New', serif;
-  font-size: 14px;
 }
 
 .axisLabel {
@@ -107,25 +92,17 @@ li {
   font-size: 13px;
 }
 
-
-/* LEGEND */
-
-.legend-text {
-  font-family: 'Courier New', serif;
-  font-size: 13px;
-}
-
-
-
-
-
-
-.labels {
+.var-labels, .tooltip {
   font-family: 'Courier New', serif;
   font-size: 11px;
 }
 
-.tooltip {
-  font-family: 'Courier New', serif;
-  font-size: 11px;
+.plot {
+  -moz-transition: all 0.5s;
+  -o-transition: all 0.5s;
+  -webkit-transition: all 0.5s;
+}
+
+.plot:hover {
+  opacity: 0.5;
 }
