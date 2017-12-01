@@ -1,9 +1,12 @@
 //set margins
 var margin = {top: 100, right: 100, bottom: 100, left: 100};
-var totalWidth = 900;
-var totalHeight = 700;
+var totalWidth = 800;
+var totalHeight = 600;
 var width = totalWidth - margin.left - margin.top;
 var height = totalHeight - margin.top - margin.bottom;
+
+var smallWidth = 3.5*margin.left;
+var smallHeight = 1.5*margin.top;
 
 //boxplot colors and labels
 var colors = {0: ['#a85c0f','#cc9060','#eac6ad'], //orange
@@ -33,19 +36,19 @@ var xLabels = {'judge_race': 'Judge Race', 'judge_gender': 'Judge Gender',
 var svg = d3.select("#chart")
             .append('svg')
             .attr("width", totalWidth)
-            .attr("height", totalHeight)
-            .attr("transform", "translate(" + 4*margin.left + "," + margin.top + ")");
+            .attr("height", totalHeight - margin.top/2)
+            .attr("transform", "translate(" + 3.5*margin.left + "," + margin.top + ")");
 
 var chart = svg.append('g')
                 .attr("transform", "translate(" + margin.left/2 + "," + margin.left/1.5 + ")");
 
 var svgSmall = d3.select('#small-chart')
                     .append('svg')
-                    .attr('width', totalWidth/2.25)
-                    .attr('height', totalHeight/2.8);
+                    .attr('width', smallWidth)
+                    .attr('height', smallHeight)
+                    .attr('transform', 'translate(0' + -margin.top/2 + ')')
 
 var smallChart = svgSmall.append('g')
-                          .attr("transform", "translate(0," + margin.top/2.5 + ")");
 
 //load data
 d3.json("ht_sentencing.json", function(error, data) {
@@ -149,15 +152,35 @@ function getScales(finalData) {
 
 function drawSideChart() {
 
-  var xPoints = {'min': [75, 'minimum'], 'q1': [125, '25%'],
-                'med': [200, 'median'], 'q3': [275, '75%'],
-                'max': [325, 'maximum']
+  var xPoints = {'min': [smallWidth/6, 'minimum'], 'q1': [smallWidth/3, '25th percentile'],
+                'med': [smallWidth/2, 'median'], 'q3': [smallWidth/1.5, '75th percentile'],
+                'max': [smallWidth/1.2, 'maximum']
                 };
+
+  for (var x in xPoints) {
+    //append text
+    smallChart.append('text')
+              .attr('class', 'chart-desc-text')
+              .attr('transform', 'rotate(25' + ',' + xPoints[x][0] + ',' + (margin.top/1.75) + ')')
+              .attr('x', xPoints[x][0])
+              .attr('y', margin.top/1.75)
+              .text(xPoints[x][1])
+
+    //append lines
+    smallChart.append('line')
+              .attr('class', 'chart-desc')
+              .attr('x1', xPoints[x][0])
+              .attr('y1', margin.top/4 + 15)
+              .attr('x2', xPoints[x][0])
+              .attr('y2', margin.top/4 + 25)
+              .attr('stroke-width', 1)
+              .attr('stroke', 'black')
+  } //end loop
 
   //append min and max bars
   smallChart.append('rect')
             .attr('class', 'chart-desc')
-            .attr('y', margin.top/2)
+            .attr('y', margin.top/4)
             .attr('x', xPoints.min[0])
             .attr('width', xPoints.max[0] - xPoints.min[0])
             .attr('height', 12)
@@ -166,7 +189,7 @@ function drawSideChart() {
   //append iqr bars
   smallChart.append('rect')
             .attr('class', 'chart-desc')
-            .attr('y', margin.top/2)
+            .attr('y', margin.top/4)
             .attr('x', xPoints.q1[0])
             .attr('width', xPoints.q3[0] - xPoints.q1[0])
             .attr('height', 12)
@@ -176,29 +199,10 @@ function drawSideChart() {
   smallChart.append('circle')
             .attr('class', 'chart-desc')
             .attr('cx', xPoints.med[0])
-            .attr('cy', margin.top/1.79)
+            .attr('cy', margin.top / (margin.top / (margin.top / 4 + 6)))
             .attr('r', 15)
             .style('fill', '#898989');
 
-  for (var x in xPoints) {
-    //append text
-    smallChart.append('text')
-              .attr('class', 'chart-desc-text')
-              .attr('transform', 'rotate(25' + ',' + xPoints[x][0] + ',' + 85 + ')')
-              .attr('x', xPoints[x][0])
-              .attr('y', 85)
-              .text(xPoints[x][1])
-
-    //append lines
-    smallChart.append('line')
-              .attr('class', 'chart-desc')
-              .attr('x1', xPoints[x][0])
-              .attr('y1', margin.top/1.5)
-              .attr('x2', xPoints[x][0])
-              .attr('y2', margin.top/1.3)
-              .attr('stroke-width', 1)
-              .attr('stroke', 'black')
-  } //end loop
 }; // end makeSideChart
 
 
@@ -468,7 +472,7 @@ function appendLabels(xScale, yScale) {
         .data(finalData)
         .enter()
         .append("text")
-        .attr('x', 708)
+        .attr('x', width*1.02)
         .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 + 1;})
         .attr('fill', '#f4f4f4')
         .transition()
@@ -476,7 +480,7 @@ function appendLabels(xScale, yScale) {
         .delay(2500)
         .attr('class', 'var-labels')
         .attr('id', function(d) {return 'label' + d.key})
-        .attr('x', 708)
+        .attr('x', width*1.02)
         .attr('y', function(d) {return xScale(d.key) + xScale.bandwidth()/2 + 1;})
         .attr('text-anchor', 'left')
         .attr('alignment-baseline', 'middle')

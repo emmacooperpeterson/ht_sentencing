@@ -2,8 +2,8 @@
 
 #container {
   background-color: #f4f4f4;
-  height: 800px;
-  width: 1300px;
+  height: 650px;
+  width: 1200px;
 }
 
 #title {
@@ -27,8 +27,8 @@
 /* SIDEBAR */
 
 #sidebar {
-  height: 450px;
-  width: 400px;
+  height: 400px;
+  width: 350px;
   position: absolute;
   left: 0px;
   top: 100px;
@@ -39,6 +39,7 @@
   font-family: 'Montserrat', sans-serif;
   margin-left: 50px;
   margin-top: 20px;
+  margin-bottom: -10px;
 }
 
 .boxes {
@@ -49,11 +50,11 @@
 
 .menu {
   font-family: 'Courier New', serif;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 li {
-    margin: 8px 0px;
+    margin: 6px 0px;
 }
 
 
