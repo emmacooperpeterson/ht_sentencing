@@ -619,6 +619,7 @@ sortMenu.on('change', function() {
 
 
 //update boxplots
+
 var variableMenu = d3.select("#include-menu")
 
 variableMenu.on('change', function() {
@@ -730,28 +731,36 @@ function drawScatter(dataset, variable, category, catLength) {
 
 
 function delayScatters(dataset) {
-  var clicked = false; //need a better way to handle this bc this isn't tied to the specific thing that was clicked
   var categories = d3.selectAll('.var-labels')
   var catLength = categories._groups[0].length
   var selectedVariable = d3.select('input[name = "variable"]:checked')
                             .property("value");
+
+  //array to keep track of which plot has been clicked
+  var cats = categories._groups[0]
+  var clicked = {}
+  for (i = 0; i < catLength; i++) {
+    varID = cats[i].id
+    varNum = varID.substr(-1)
+    clicked[varNum] = false;
+  }
 
   categories.on('click', function() {
     var plotID = this.id;
     var cat = parseFloat(plotID.substr(plotID.length - 1))
     var box = d3.select('#plot' + cat)
 
-    if (!clicked) {
+    if (!clicked[cat]) {
       drawScatter(dataset, selectedVariable, cat, catLength)
       box.attr('opacity', 0)
-      clicked = true
+      clicked[cat] = true
     }
-    else if (clicked) {
-      scatters = d3.selectAll('.dot')
+    else if (clicked[cat]) {
+      scatters = d3.selectAll('.dot' + cat)
 
       scatters.remove()
       box.attr('opacity', 1)
-      clicked = false
+      clicked[cat] = false
     }
   }) //end categories.on
 } //end delayScatters

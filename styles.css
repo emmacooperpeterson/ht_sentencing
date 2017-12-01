@@ -60,6 +60,9 @@ li {
     margin: 6px 0px;
 }
 
+.dot:hover {
+  opacity: 1;
+}
 
 
 
