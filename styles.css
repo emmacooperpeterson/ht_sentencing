@@ -52,9 +52,14 @@
   font-size: 12px;
 }
 
+.menu:hover {
+  font-weight: bold;
+}
+
 li {
     margin: 6px 0px;
 }
+
 
 
 
@@ -78,7 +83,7 @@ li {
 
 #grid-ticks {
   font-family: 'Courier New', serif;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .tick {
@@ -98,6 +103,14 @@ li {
 .var-labels, .tooltip {
   font-family: 'Courier New', serif;
   font-size: 11px;
+}
+
+.var-labels:hover {
+  font-weight: bold;
+  cursor: pointer;
+  -moz-transition: all 1s;
+  -o-transition: all 1s;
+  -webkit-transition: all 1s;
 }
 
 .plot {

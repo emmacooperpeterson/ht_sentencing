@@ -77,8 +77,7 @@ d3.json("ht_sentencing.json", function(error, data) {
   drawChart(finalData);
   drawGrid(scales.y);
   xLabel();
-  window.setTimeout('delayScatters(dataset)', 3000); //better way to handle this? i cant select the labels until they appear
-
+  window.setTimeout('delayScatters(dataset)', 1); //better way to handle this? i cant select the labels until they appear
 }); //end load data
 
 
@@ -236,6 +235,9 @@ function drawChart(finalData) {
      .attr("stop-color", "#f4f4f4")
      .attr("stop-opacity", 1);
 
+  //add variable labels
+  appendLabels(xScale, yScale);
+
   //create boxplot groups
   boxplotGroups = chart.selectAll("rect")
                         .data(finalData)
@@ -275,9 +277,7 @@ function drawChart(finalData) {
                 .attr("x", function(d) {return yScale(d.value.q3);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
                 .attr("width", function(d) {
-                  if (d.value.max > 30) {
-                    return yScale(30-d.value.q3)
-                  }
+                  if (d.value.max > 30) {return yScale(30-d.value.q3)}
                   else {return yScale(d.value.max - d.value.q3);}
                 })
                 .attr("height", 12)
@@ -296,7 +296,10 @@ function drawChart(finalData) {
                 .attr('class', 'boxplot')
                 .attr("x", function(d) {return yScale(25);})
                 .attr("y", function(d) {return xScale(d.key) + xScale.bandwidth()/2 - 6;})
-                .attr("width", function(d) {return yScale(5);})
+                .attr("width", function(d) {
+                  if (d.value.max > 30) {return yScale(5)}
+                  else {return 0}
+                })
                 .attr("height", 12)
                 .attr('fill', 'url(#svgGradient)')
                 .attr('opacity', 1);
@@ -360,9 +363,6 @@ function drawChart(finalData) {
         .attr('y', 0)
         .attr('width', width)
         .attr('height', height)
-
-  //add variable labels
-  appendLabels(xScale, yScale);
 
   //tooltip on
   boxplotGroups.on('mouseover', function(d) {
@@ -467,7 +467,7 @@ function appendLabels(xScale, yScale) {
             'recruit': methods, 'type': types, 'region': regions,
             'year_group': years}
 
-  chart.selectAll(".text")
+  var varLabels = chart.selectAll(".text")
         .data(finalData)
         .enter()
         .append("text")
@@ -476,7 +476,6 @@ function appendLabels(xScale, yScale) {
         .attr('fill', '#f4f4f4')
         .transition()
         .duration(1500)
-        .delay(2500)
         .attr('class', 'var-labels')
         .attr('id', function(d) {return 'label' + d.key})
         .attr('x', width*1.02)
