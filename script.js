@@ -689,13 +689,13 @@ function drawScatter(dataset, variable, category, catLength) {
         .filter(function(d) {return d[variable] == category & d.sentence <= 30})
         .append('circle')
         .attr('class', function(d) {return 'dot ' + 'dot' + d[variable]})
-        .attr('stroke-opacity', 0)
+        .attr('opacity', 0)
         .attr('cx', function(d, i) {
           if (i%2 === 0) { //https://bl.ocks.org/duhaime/14c30df6b82d3f8094e5a51e5fff739a
-            return yScale(d.sentence) + Math.random() * 10
+            return yScale(15)
           }
           else {
-           return yScale(d.sentence) - Math.random() * 10
+           return yScale(15)
           }
         })
         .attr('cy', function(d, i) {
@@ -707,9 +707,14 @@ function drawScatter(dataset, variable, category, catLength) {
           }
         })
         .transition()
-        .duration(1500)
+        .duration(function(d, i) {
+          if (i%4 === 0) {return 900 + Math.random()*100}
+          else if (i%4 === 1) {return 1000 + Math.random()*100}
+          else if (i%4 === 2) {return 1100 + Math.random()*100}
+          else {return 1300 + Math.random()*100}
+        })
         .ease(d3.easeBackOut)
-        .attr('cx', function(d) {return yScale(d.sentence) + Math.random()*20})
+        .attr('cx', function(d) {return yScale(d.sentence) + Math.random()*10})
         .attr('cy', function(d, i) {
           if (i%2 === 0) {
             return xScale(d[variable]) + xScale.bandwidth()/2 + Math.random() * height/(2*catLength)
@@ -719,10 +724,8 @@ function drawScatter(dataset, variable, category, catLength) {
           }
         })
         .attr('r', 4)
-        .attr('stroke-opacity', 0.5)
-        .attr('fill-opacity', 0)
-        .attr('stroke-width', 1)
-        .attr('stroke', function(d) {return colors[d[variable]][0]});
+        .attr('opacity', 0.5)
+        .attr('fill', function(d) {return colors[d[variable]][0]});
 }; //end drawScatter
 
 
