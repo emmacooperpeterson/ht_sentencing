@@ -661,6 +661,7 @@ variableMenu.on('change', function() {
 
 function removePlots(sorting=false) {
   var boxplots = d3.selectAll('.plot')
+  var hiddenBoxplots = d3.selectAll('.gone')
   var labs = d3.selectAll('.var-labels')
   var clippaths = d3.select('#chart-area')
   var xLab = d3.select('#x-label')
@@ -668,6 +669,7 @@ function removePlots(sorting=false) {
   var dots = d3.selectAll('.dot')
 
   dots.remove();
+  hiddenBoxplots.remove();
   boxplots.remove();
   labs.remove();
   clippaths.remove();
