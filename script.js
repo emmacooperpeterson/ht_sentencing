@@ -753,6 +753,7 @@ function delayScatters(dataset) {
     if (!clicked[cat]) {
       drawScatter(dataset, selectedVariable, cat, catLength)
       box.attr('opacity', 0)
+          .attr('class', 'gone')//it's still technically there and the tooltip still works but probably shouldnt
       clicked[cat] = true
     }
     else if (clicked[cat]) {
@@ -760,6 +761,7 @@ function delayScatters(dataset) {
 
       scatters.remove()
       box.attr('opacity', 1)
+          .class('#plot' + cat)
       clicked[cat] = false
     }
   }) //end categories.on
