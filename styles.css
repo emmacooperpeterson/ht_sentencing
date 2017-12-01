@@ -7,7 +7,7 @@
 }
 
 #title {
-  font-size: 20px;
+  font-size: 24px;
   font-family: 'Montserrat', sans-serif;
   position: absolute;
   left: 50px;
@@ -23,7 +23,6 @@
 }
 
 
-
 /* SIDEBAR */
 
 #sidebar {
@@ -31,14 +30,14 @@
   width: 350px;
   position: absolute;
   left: 0px;
-  top: 100px;
+  top: 75px;
 }
 
 .side-header {
   font-size: 14px;
   font-family: 'Montserrat', sans-serif;
   margin-left: 50px;
-  margin-top: 20px;
+  margin-top: 25px;
   margin-bottom: -10px;
 }
 
@@ -63,24 +62,27 @@ li {
 
 #small-chart {
   position: absolute;
-  width: 400px;
-  height: 250px;
+  width: 350px;
+  height: 150px;
   left: 0px;
-  top: 550px;
+  top: 500px;
 }
 
 .chart-desc-text {
   font-family: 'Courier New', serif;
-  font-size: 10px;
+  font-size: 8px;
 }
-
 
 
 /* MAIN CHART */
 
 #grid-ticks {
   font-family: 'Courier New', serif;
-  font-size: 14px;
+  font-size: 12px;
+}
+
+.tick {
+  stroke-width: 0.25px;
 }
 
 .footnote, .outlier-footnote {
@@ -89,8 +91,8 @@ li {
 }
 
 .axisLabel {
+  font-size: 12px;
   font-family: 'Montserrat', sans-serif;
-  font-size: 13px;
 }
 
 .var-labels, .tooltip {

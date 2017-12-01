@@ -1,7 +1,7 @@
 //set margins
 var margin = {top: 100, right: 100, bottom: 100, left: 100};
 var totalWidth = 800;
-var totalHeight = 600;
+var totalHeight = 650;
 var width = totalWidth - margin.left - margin.top;
 var height = totalHeight - margin.top - margin.bottom;
 
@@ -35,18 +35,17 @@ var xLabels = {'judge_race': 'Judge Race', 'judge_gender': 'Judge Gender',
 //set up svgs and charts
 var svg = d3.select("#chart")
             .append('svg')
-            .attr("width", totalWidth)
+            .attr("width", totalWidth + margin.top/2)
             .attr("height", totalHeight - margin.top/2)
-            .attr("transform", "translate(" + 3.5*margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + 3.5*margin.left + "," + margin.top/2 + ")");
 
 var chart = svg.append('g')
-                .attr("transform", "translate(" + margin.left/2 + "," + margin.left/1.5 + ")");
+                .attr("transform", "translate(" + margin.left/2 + "," + margin.top/2 + ")");
 
 var svgSmall = d3.select('#small-chart')
                     .append('svg')
                     .attr('width', smallWidth)
                     .attr('height', smallHeight)
-                    .attr('transform', 'translate(0' + -margin.top/2 + ')')
 
 var smallChart = svgSmall.append('g')
 
@@ -137,7 +136,7 @@ function getScales(finalData) {
 
   var xScale = d3.scaleBand()
                   .domain(finalData.map(function(d) {return d.key;}))
-                  .range([0,height]);
+                  .range([0,.9*height]);
 
   var yScale = d3.scaleLinear()
                   .domain([30, 0])
@@ -173,7 +172,7 @@ function drawSideChart() {
               .attr('y1', margin.top/4 + 15)
               .attr('x2', xPoints[x][0])
               .attr('y2', margin.top/4 + 25)
-              .attr('stroke-width', 1)
+              .attr('stroke-width', 0.5)
               .attr('stroke', 'black')
   } //end loop
 
@@ -183,7 +182,7 @@ function drawSideChart() {
             .attr('y', margin.top/4)
             .attr('x', xPoints.min[0])
             .attr('width', xPoints.max[0] - xPoints.min[0])
-            .attr('height', 12)
+            .attr('height', 9)
             .style('fill', '#d6d6d6');
 
   //append iqr bars
@@ -192,15 +191,15 @@ function drawSideChart() {
             .attr('y', margin.top/4)
             .attr('x', xPoints.q1[0])
             .attr('width', xPoints.q3[0] - xPoints.q1[0])
-            .attr('height', 12)
+            .attr('height', 9)
             .style('fill', '#afafaf');
 
   //append median
   smallChart.append('circle')
             .attr('class', 'chart-desc')
             .attr('cx', xPoints.med[0])
-            .attr('cy', margin.top / (margin.top / (margin.top / 4 + 6)))
-            .attr('r', 15)
+            .attr('cy', margin.top / (margin.top / (margin.top / 4 + 4.5)))
+            .attr('r', 12)
             .style('fill', '#898989');
 
 }; // end makeSideChart
@@ -525,10 +524,10 @@ function drawGrid(yScale) {
                   .attr('id', 'grid')
 
   grid.append('g')
-      .call(d3.axisTop(yScale)
+      .call(d3.axisBottom(yScale)
               .tickSizeInner(0)
               .tickSizeOuter(0)
-              .tickPadding(10)
+              .tickPadding(.92*height)
               .tickValues([0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30]))
       .attr('id', 'grid-ticks')
 
@@ -539,9 +538,9 @@ function drawGrid(yScale) {
   //draw gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
   grid.append("g")
         .attr("class", "lines")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + .9*height + ")")
         .call(make_x_gridlines()
-            .tickSize(-height)
+            .tickSize(-.9*height)
             .tickFormat("")
             .tickValues([0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30]))
 
@@ -560,21 +559,31 @@ function drawGrid(yScale) {
   //y axis label
   grid.append("text")
     .attr("class", "axisLabel")
-    .attr("y", -35)
+    .attr("y", height)
     .attr("x", yScale(15))
     .attr('text-anchor', 'middle')
     .text("Length of Sentence (in years)");
 
-  //permanent footnote
+  //permanent footnotes
   chart.append('text')
         .attr('class', 'outlier-footnote')
         .attr('opacity', 0)
         .transition()
         .duration(1000)
         .attr('x', 0)
-        .attr('y', height + 30)
+        .attr('y', height + margin.top/4)
         .attr('opacity', 1)
-        .text('*Sentences longer than 30 years are more than 1.5' +
+        .text('Source: www.HumanTraffickingData.org')
+
+  chart.append('text')
+        .attr('class', 'outlier-footnote')
+        .attr('opacity', 0)
+        .transition()
+        .duration(1000)
+        .attr('x', 0)
+        .attr('y', height + margin.top/2.25)
+        .attr('opacity', 1)
+        .text('Sentences longer than 30 years are more than 1.5' +
               ' times higher than the 75th percentile and are' +
               ' therefore considered outliers.')
 
@@ -584,7 +593,7 @@ function drawGrid(yScale) {
         .transition()
         .duration(1000)
         .attr('x', 0)
-        .attr('y', height + 40)
+        .attr('y', height + margin.top/1.85)
         .attr('opacity', 1)
         .text('These account for about 4% of all sentences, ' +
               'and are excluded from this graph. Hover over each plot ' +
@@ -627,11 +636,11 @@ variableMenu.on('change', function() {
   xLabel();
   window.setTimeout('delayScatters(dataset)', 3000);
 
-  footnotes = {'type':  '*Some cases involve multiple types of trafficking.' +
+  footnotes = {'type':  'Some cases involve multiple types of trafficking.' +
                         ' To avoid confusion, cases included here involved' +
                         ' one of these three types exclusively.',
 
-                'vic_gender': '*Some cases involve victims of multiple genders.' +
+                'vic_gender': 'Some cases involve victims of multiple genders.' +
                               ' To avoid confusion, cases included here involved' +
                               ' one of these two genders exclusively.'
               }
@@ -643,7 +652,7 @@ variableMenu.on('change', function() {
           .transition()
           .duration(1000)
           .attr('x', 0)
-          .attr('y', height + 55)
+          .attr('y', height + margin.top/1.35)
           .attr('opacity', 1)
           .text(footnotes[selectedVariable])
   }
