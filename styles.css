@@ -64,12 +64,12 @@ li {
   opacity: 1;
 }
 
-#selected-label {
+.boxes input[type="radio"]:checked+label {
   font-weight: bold;
 }
 
-.unselected-label {
-  font-weight: normal;
+.boxes input[type="radio"]:not(:checked)+label {
+  color: gray;
 }
 
 
