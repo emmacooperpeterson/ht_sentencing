@@ -64,6 +64,14 @@ li {
   opacity: 1;
 }
 
+#selected-label {
+  font-weight: bold;
+}
+
+.unselected-label {
+  font-weight: normal;
+}
+
 
 
 /* SMALL CHART */

@@ -626,8 +626,26 @@ variableMenu.on('change', function() {
   var selectedVariable = d3.select('input[name = "variable"]:checked')
                             .property("value");
 
+  //make only the selected label bold
+  var unselectedIDs = d3.selectAll('input[name = "variable"]:not(:checked)')._groups[0]
+  var unselectedLength = unselectedIDs.length
+  console.log(unselectedIDs)
+
+  for (i = 0; i < unselectedLength; i++) {
+    var unselectedID = unselectedIDs[i].labels[0]
+    var unselectedLabel = d3.select(unselectedID)
+    unselectedLabel.attr('id', 'null').attr('class', 'unselected-label') //unbold the unselected labels
+  }
+
+  var selectedID = d3.select('input[name = "variable"]:checked')._groups[0][0].labels[0];
+  var selectedLabel = d3.select(selectedID)
+  selectedLabel.attr('id', 'selected-label') //bold the selected label
+
   //uncheck sort options
   d3.selectAll('input[name = "sort-by"]').property('checked', false);
+
+  unchecked = d3.selectAll('input[name = "variable"]')._groups[0]
+  //console.log(unchecked)
 
   removePlots();
   finalData = getData();
