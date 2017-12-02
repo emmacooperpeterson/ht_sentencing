@@ -440,7 +440,7 @@ function drawChart(finalData) {
   boxplotGroups.on('mouseout', function() {
     d3.selectAll('.tooltip')
       .transition()
-      .duration(1000)
+      .duration(500)
       .attr('opacity', 0)
       .remove();
    })
@@ -484,6 +484,7 @@ function appendLabels(xScale, yScale) {
         .attr('alignment-baseline', 'middle')
         .attr('fill', 'black')
         .text(function(d) {return labels[selectedVariable][d.key]})
+
 }; //end appendLabels
 
 
@@ -757,17 +758,15 @@ function delayScatters(dataset) {
 
     if (!clicked[cat]) {
       drawScatter(dataset, selectedVariable, cat, catLength)
-      box.attr('opacity', 0)
-          .attr('class', 'gone')//it's still technically there and the tooltip still works but probably shouldnt
-      clicked[cat] = true
+      box.attr('opacity', 0); //it's still technically there and the tooltip still works but probably shouldnt
+      clicked[cat] = true;
     }
     else if (clicked[cat]) {
       scatters = d3.selectAll('.dot' + cat)
 
       scatters.remove()
-      box.attr('opacity', 1)
-          .class('#plot' + cat)
-      clicked[cat] = false
+      box.attr('opacity', 1);
+      clicked[cat] = false;
     }
   }) //end categories.on
 } //end delayScatters

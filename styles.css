@@ -60,16 +60,14 @@ li {
     margin: 6px 0px;
 }
 
-.dot:hover {
-  opacity: 1;
-}
-
 .boxes input[type="radio"]:checked+label {
   font-weight: bold;
 }
 
 .boxes input[type="radio"]:not(:checked)+label {
   color: gray;
+  opacity: 0.75;
+  cursor: pointer;
 }
 
 
@@ -119,9 +117,6 @@ li {
 .var-labels:hover {
   font-weight: bold;
   cursor: pointer;
-  -moz-transition: all 1s;
-  -o-transition: all 1s;
-  -webkit-transition: all 1s;
 }
 
 .plot {
