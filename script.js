@@ -71,11 +71,11 @@ d3.json("ht_sentencing.json", function(error, data) {
   });
 
   //draw initial chart
-  finalData = getData();
-  scales = getScales(finalData);
+  //finalData = getData();
+  //scales = getScales(finalData);
   drawSideChart();
-  drawChart(finalData);
-  drawGrid(scales.y);
+  drawChart();
+  drawGrid();
   xLabel();
   window.setTimeout('delayScatters(dataset)', 1); //better way to handle this? i cant select the labels until they appear
 }); //end load data
@@ -207,7 +207,11 @@ function drawSideChart() {
 
 
 
-function drawChart(finalData) {
+function drawChart() {
+
+  var sortMethod = d3.select('input[name="sort-by"]:checked')
+                            .property("value");
+  finalData = getData(sortMethod);
 
   scales = getScales(finalData);
   xScale = scales.x
@@ -457,7 +461,7 @@ function appendLabels(xScale, yScale) {
   var parties = {0: 'Democrat', 1: 'Republican'}
   var methods = {0: 'Unknown/other', 1: 'Online', 2: 'Kidnap', 3: 'Face-to-Face',
                 4: 'Telephone', 5: 'Family', 6: 'Newspaper'}
-  var types = {0: 'Labor trafficking', 1: 'Adult sex trafficking', 2: 'Minor Sex Trafficking'}
+  var types = {0: 'Labor trafficking', 1: 'Adult sex trafficking', 2: 'Minor sex trafficking'}
   var regions = {0: 'South', 1: 'Northeast', 2: 'West', 3: 'Midwest'}
   var years = {0: '2000-2003', 1: '2004-2007', 2: '2008-2011', 3: '2012-2015'}
 
@@ -517,7 +521,11 @@ function xLabel() {
 
 
 
-function drawGrid(yScale) {
+function drawGrid() {
+
+  finalData = getData();
+  scales = getScales(finalData);
+  yScale = scales.y
 
   //draw y axis
   var grid = chart.append('g')
@@ -605,16 +613,51 @@ function drawGrid(yScale) {
 
 //sort boxplots
 var sortMenu = d3.select('#sort-menu')
+sortPlots(sortMenu)
 
+function sortPlots(sortMenu) {
 sortMenu.on('change', function() {
   var sortMethod = d3.select('input[name="sort-by"]:checked')
                             .property("value");
   removePlots(true);
-  finalData = getData(sortMethod);
+  //finalData = getData(sortMethod);
   scales = getScales(finalData);
-  drawChart(finalData);
+  drawChart();
   window.setTimeout('delayScatters(dataset)', 3000);
 });
+}
+
+
+
+
+
+//do this better: make sure the footnote for type of trafficking shows up on initial load, not just when clicked
+var selectedVariable = d3.select('input[name = "variable"]:checked')
+                          .property("value");
+
+footnotes = {'type':  'Some cases involve multiple types of trafficking.' +
+                      ' To avoid confusion, cases included here involved' +
+                      ' one of these three types exclusively.',
+
+              'vic_gender': 'Some cases involve victims of multiple genders.' +
+                            ' To avoid confusion, cases included here involved' +
+                            ' one of these two genders exclusively.'
+            }
+
+if (selectedVariable == 'type' || selectedVariable == 'vic_gender') {
+  chart.append('text')
+        .attr('class', 'footnote')
+        .attr('opacity', 0)
+        .transition()
+        .duration(1000)
+        .attr('x', 0)
+        .attr('y', height + margin.top/1.35)
+        .attr('opacity', 1)
+        .text(footnotes[selectedVariable])
+}
+
+
+
 
 
 
@@ -628,15 +671,15 @@ variableMenu.on('change', function() {
                             .property("value");
 
   //uncheck sort options
-  d3.selectAll('input[name = "sort-by"]').property('checked', false);
+  //d3.selectAll('input[name = "sort-by"]').property('checked', false);
 
-  unchecked = d3.selectAll('input[name = "variable"]')._groups[0]
+  //unchecked = d3.selectAll('input[name = "variable"]')._groups[0]
   //console.log(unchecked)
 
   removePlots();
-  finalData = getData();
+  //finalData = getData();
   scales = getScales(finalData);
-  drawChart(finalData);
+  drawChart();
   xLabel();
   window.setTimeout('delayScatters(dataset)', 3000);
 
@@ -677,10 +720,12 @@ function removePlots(sorting=false) {
   boxplots.remove();
   labs.remove();
   clippaths.remove();
-  footnotes.remove();
 
   //don't remove the x label if we're just sorting
-  if (!sorting) {xLab.remove();};
+  if (!sorting) {
+    xLab.remove();
+    footnotes.remove();
+  };
 }; // end remove Plots
 
 
