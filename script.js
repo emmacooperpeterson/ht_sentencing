@@ -768,10 +768,10 @@ function drawScatter(dataset, variable, category, catLength) {
         .attr('cx', function(d) {return yScale(d.sentence) + Math.random()*10})
         .attr('cy', function(d, i) {
           if (i%2 === 0) {
-            return xScale(d[variable]) + xScale.bandwidth()/2 + Math.random() * height/(2*catLength)
+            return xScale(d[variable]) + xScale.bandwidth()/2 + Math.random() * height/(3*catLength)
           }
           else {
-           return xScale(d[variable]) + xScale.bandwidth()/2 - Math.random() * height/(2*catLength)
+           return xScale(d[variable]) + xScale.bandwidth()/2 - Math.random() * height/(3*catLength)
           }
         })
         .attr('r', 4)
