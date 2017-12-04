@@ -77,6 +77,7 @@ d3.json("ht_sentencing.json", function(error, data) {
   drawChart();
   drawGrid();
   xLabel();
+  applyFootnotes();
   window.setTimeout('delayScatters(dataset)', 1); //better way to handle this? i cant select the labels until they appear
 }); //end load data
 
@@ -574,7 +575,7 @@ function drawGrid() {
 
   //permanent footnotes
   chart.append('text')
-        .attr('class', 'outlier-footnote')
+        .attr('class', 'permanent-footnote')
         .attr('opacity', 0)
         .transition()
         .duration(1000)
@@ -584,7 +585,7 @@ function drawGrid() {
         .text('Source: www.HumanTraffickingData.org')
 
   chart.append('text')
-        .attr('class', 'outlier-footnote')
+        .attr('class', 'permanent-footnote')
         .attr('opacity', 0)
         .transition()
         .duration(1000)
@@ -596,7 +597,7 @@ function drawGrid() {
               ' therefore considered outliers.')
 
   chart.append('text')
-        .attr('class', 'outlier-footnote')
+        .attr('class', 'permanent-footnote')
         .attr('opacity', 0)
         .transition()
         .duration(1000)
@@ -606,7 +607,39 @@ function drawGrid() {
         .text('These account for about 4% of all sentences, ' +
               'and are excluded from this graph. Hover over each plot ' +
               'to view actual maximum sentences.')
+
 }; //end drawGrid
+
+
+
+
+function applyFootnotes() {
+
+  //variable-specific footnotes
+  var selectedVariable = d3.select('input[name = "variable"]:checked')
+                            .property("value");
+
+  footnotes = {'type':  'Some cases involve multiple types of trafficking.' +
+                        ' To avoid confusion, cases included here involved' +
+                        ' one of these three types exclusively.',
+
+                'vic_gender': 'Some cases involve victims of multiple genders.' +
+                              ' To avoid confusion, cases included here involved' +
+                              ' one of these two genders exclusively.'
+              }
+
+  if (selectedVariable == 'type' || selectedVariable == 'vic_gender') {
+    chart.append('text')
+          .attr('class', 'variable-footnote')
+          .attr('opacity', 0)
+          .transition()
+          .duration(1000)
+          .attr('x', 0)
+          .attr('y', height + margin.top/1.35)
+          .attr('opacity', 1)
+          .text(footnotes[selectedVariable])
+  };
+}; //end applyFootnotes()
 
 
 
@@ -632,29 +665,29 @@ sortMenu.on('change', function() {
 
 
 //do this better: make sure the footnote for type of trafficking shows up on initial load, not just when clicked
-var selectedVariable = d3.select('input[name = "variable"]:checked')
-                          .property("value");
-
-footnotes = {'type':  'Some cases involve multiple types of trafficking.' +
-                      ' To avoid confusion, cases included here involved' +
-                      ' one of these three types exclusively.',
-
-              'vic_gender': 'Some cases involve victims of multiple genders.' +
-                            ' To avoid confusion, cases included here involved' +
-                            ' one of these two genders exclusively.'
-            }
-
-if (selectedVariable == 'type' || selectedVariable == 'vic_gender') {
-  chart.append('text')
-        .attr('class', 'footnote')
-        .attr('opacity', 0)
-        .transition()
-        .duration(1000)
-        .attr('x', 0)
-        .attr('y', height + margin.top/1.35)
-        .attr('opacity', 1)
-        .text(footnotes[selectedVariable])
-}
+// var selectedVariable = d3.select('input[name = "variable"]:checked')
+//                           .property("value");
+//
+// footnotes = {'type':  'Some cases involve multiple types of trafficking.' +
+//                       ' To avoid confusion, cases included here involved' +
+//                       ' one of these three types exclusively.',
+//
+//               'vic_gender': 'Some cases involve victims of multiple genders.' +
+//                             ' To avoid confusion, cases included here involved' +
+//                             ' one of these two genders exclusively.'
+//             }
+//
+// if (selectedVariable == 'type' || selectedVariable == 'vic_gender') {
+//   chart.append('text')
+//         .attr('class', 'footnote')
+//         .attr('opacity', 0)
+//         .transition()
+//         .duration(1000)
+//         .attr('x', 0)
+//         .attr('y', height + margin.top/1.35)
+//         .attr('opacity', 1)
+//         .text(footnotes[selectedVariable])
+// }
 
 
 
@@ -663,46 +696,17 @@ if (selectedVariable == 'type' || selectedVariable == 'vic_gender') {
 
 
 //update boxplots
-
 var variableMenu = d3.select("#include-menu")
 
 variableMenu.on('change', function() {
   var selectedVariable = d3.select('input[name = "variable"]:checked')
                             .property("value");
 
-  //uncheck sort options
-  //d3.selectAll('input[name = "sort-by"]').property('checked', false);
-
-  //unchecked = d3.selectAll('input[name = "variable"]')._groups[0]
-  //console.log(unchecked)
-
   removePlots();
-  //finalData = getData();
-  scales = getScales(finalData);
   drawChart();
   xLabel();
+  applyFootnotes();
   window.setTimeout('delayScatters(dataset)', 3000);
-
-  footnotes = {'type':  'Some cases involve multiple types of trafficking.' +
-                        ' To avoid confusion, cases included here involved' +
-                        ' one of these three types exclusively.',
-
-                'vic_gender': 'Some cases involve victims of multiple genders.' +
-                              ' To avoid confusion, cases included here involved' +
-                              ' one of these two genders exclusively.'
-              }
-
-  if (selectedVariable == 'type' || selectedVariable == 'vic_gender') {
-    chart.append('text')
-          .attr('class', 'footnote')
-          .attr('opacity', 0)
-          .transition()
-          .duration(1000)
-          .attr('x', 0)
-          .attr('y', height + margin.top/1.35)
-          .attr('opacity', 1)
-          .text(footnotes[selectedVariable])
-  }
 }); //end update process
 
 
@@ -712,7 +716,7 @@ function removePlots(sorting=false) {
   var labs = d3.selectAll('.var-labels')
   var clippaths = d3.select('#chart-area')
   var xLab = d3.select('#x-label')
-  var footnotes = d3.selectAll('.footnote')
+  var footnotes = d3.selectAll('.variable-footnote')
   var dots = d3.selectAll('.dot')
 
   dots.remove();
