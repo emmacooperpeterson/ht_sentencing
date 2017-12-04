@@ -649,49 +649,14 @@ var sortMenu = d3.select('#sort-menu')
 sortPlots(sortMenu)
 
 function sortPlots(sortMenu) {
-sortMenu.on('change', function() {
+  sortMenu.on('change', function() {
   var sortMethod = d3.select('input[name="sort-by"]:checked')
-                            .property("value");
+                              .property("value");
   removePlots(true);
-  //finalData = getData(sortMethod);
-  scales = getScales(finalData);
   drawChart();
   window.setTimeout('delayScatters(dataset)', 3000);
 });
 }
-
-
-
-
-
-//do this better: make sure the footnote for type of trafficking shows up on initial load, not just when clicked
-// var selectedVariable = d3.select('input[name = "variable"]:checked')
-//                           .property("value");
-//
-// footnotes = {'type':  'Some cases involve multiple types of trafficking.' +
-//                       ' To avoid confusion, cases included here involved' +
-//                       ' one of these three types exclusively.',
-//
-//               'vic_gender': 'Some cases involve victims of multiple genders.' +
-//                             ' To avoid confusion, cases included here involved' +
-//                             ' one of these two genders exclusively.'
-//             }
-//
-// if (selectedVariable == 'type' || selectedVariable == 'vic_gender') {
-//   chart.append('text')
-//         .attr('class', 'footnote')
-//         .attr('opacity', 0)
-//         .transition()
-//         .duration(1000)
-//         .attr('x', 0)
-//         .attr('y', height + margin.top/1.35)
-//         .attr('opacity', 1)
-//         .text(footnotes[selectedVariable])
-// }
-
-
-
-
 
 
 
