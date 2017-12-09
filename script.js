@@ -265,7 +265,7 @@ function drawSideChart(view='box') {
               .enter()
               .append('text')
               .attr('x', margin.left/2)
-              .attr('y', function(d,i) {console.log(i);
+              .attr('y', function(d,i) {
                  if (i === 0) {return margin.top*1.4}
                  else {return margin.top*1.5}})
               .attr('class', 'desc dot-desc dot-desc-text')
@@ -458,7 +458,7 @@ function drawChart() {
           .attr('x1', 0)
           .attr('y1', 0)
           .attr('x2', 0)
-          .attr('y2', height)
+          .attr('y2', height/1.1)
           .attr('stroke-width', 3)
           .attr('stroke', 'black')
           .attr('stroke-dasharray', '5,5')
@@ -468,7 +468,7 @@ function drawChart() {
           .attr('x1', yScale(xValues.median))
           .attr('y1', 0)
           .attr('x2', yScale(xValues.median))
-          .attr('y2', height)
+          .attr('y2', height/1.1)
           .attr('stroke-width', 3)
           .attr('stroke', 'black')
           .attr('stroke-dasharray', '5,5')
@@ -825,6 +825,19 @@ function drawScatter(dataset, variable, category, catLength) {
 
 
 
+//check if any of the values in array are true
+function clickedTrue(obj) {
+  //https://stackoverflow.com/questions/17117712/how-to-know-if-all-javascript-object-values-are-true
+
+  for (var o in obj) {
+    if(obj[o]) {return true}
+  }
+  return false;
+} //end clickedTrue
+
+
+
+
 function delayScatters(dataset) {
 
   var categories = d3.selectAll('.var-labels')
@@ -845,12 +858,14 @@ function delayScatters(dataset) {
     var plotID = this.id;
     var cat = parseFloat(plotID.substr(plotID.length - 1))
     var box = d3.select('#plot' + cat)
+    var desc = d3.selectAll('.desc')
 
     if (!clicked[cat]) {
       drawScatter(dataset, selectedVariable, cat, catLength)
       box.transition().duration(800).attr('opacity', 0); //it's still technically there and the tooltip still works but probably shouldnt
       clicked[cat] = true;
     }
+
     else if (clicked[cat]) {
       scatters = d3.selectAll('.dot' + cat)
 
@@ -868,7 +883,21 @@ function delayScatters(dataset) {
       box.transition().duration(1300).attr('opacity', 1);
       clicked[cat] = false;
     }
+    console.log(clicked)
+    console.log(clickedTrue(clicked))
+    if (clickedTrue(clicked)) {
+          desc.remove()
+          drawSideChart(view='dots')}
+
+    else {
+          desc.remove()
+          drawSideChart(view='box')}
+
+
+
   }) //end categories.on
+
+
 
 
   //explode all
