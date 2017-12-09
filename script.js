@@ -6,7 +6,7 @@ var width = totalWidth - margin.left - margin.top;
 var height = totalHeight - margin.top - margin.bottom;
 
 var smallWidth = 3.5*margin.left;
-var smallHeight = 1.5*margin.top;
+var smallHeight = 1.75*margin.top;
 
 //boxplot colors and labels
 var colors = {0: ['#a85c0f','#cc9060','#eac6ad'], //orange
@@ -84,7 +84,7 @@ d3.json("ht_sentencing.json", function(error, data) {
 
 
 
-function getData(sorted='default') {
+function getData(sorted='ascending') {
 
   selectedVariable = d3.select('input[name="variable"]:checked').property("value");
 
@@ -100,7 +100,6 @@ function getData(sorted='default') {
                 count: v.length
                 };
               })
-      .sortKeys(d3.ascending) //default sorting by key so years appear in order
       .entries(filteredData);
 
   if (sorted == 'ascending') {
@@ -149,58 +148,142 @@ function getScales(finalData) {
 
 
 
-function drawSideChart() {
+function drawSideChart(view='dots') {
+
+  smallChart.append('circle')
+            .attr('cx', margin.left/1.8)
+            .attr('cy', margin.top/4)
+            .attr('r', 8)
+            .attr('id', 'explode-button')
+            .attr('fill', 'orange')
+  //
+  // var t = d3.select('#explode-button')
+  // //t.on('click', explodeScatters())
+
+
 
   var xPoints = {'min': [smallWidth/6, 'minimum'], 'q1': [smallWidth/3, '25th percentile'],
                 'med': [smallWidth/2, 'median'], 'q3': [smallWidth/1.5, '75th percentile'],
                 'max': [smallWidth/1.2, 'maximum']
                 };
 
-  for (var x in xPoints) {
-    //append text
-    smallChart.append('text')
-              .attr('class', 'chart-desc-text')
-              .attr('transform', 'rotate(25' + ',' + xPoints[x][0] + ',' + (margin.top/1.75) + ')')
-              .attr('x', xPoints[x][0])
-              .attr('y', margin.top/1.75)
-              .text(xPoints[x][1])
+  if (view == 'box') {
 
-    //append lines
-    smallChart.append('line')
+    for (var x in xPoints) {
+      //append text
+      smallChart.append('text')
+                .attr('class', 'chart-desc-text')
+                .attr('transform', 'rotate(25' + ',' + xPoints[x][0] + ',' + (margin.top) + ')')
+                .attr('x', xPoints[x][0])
+                .attr('y', margin.top)
+                .text(xPoints[x][1])
+
+      //append lines
+      smallChart.append('line')
+                .attr('class', 'chart-desc')
+                .attr('x1', xPoints[x][0])
+                .attr('y1', margin.top/1.2)
+                .attr('x2', xPoints[x][0])
+                .attr('y2', margin.top/1.1)
+                .attr('stroke-width', 0.5)
+                .attr('stroke', 'black')
+    } //end loop
+
+    //append min and max bars
+    smallChart.append('rect')
               .attr('class', 'chart-desc')
-              .attr('x1', xPoints[x][0])
-              .attr('y1', margin.top/4 + 15)
-              .attr('x2', xPoints[x][0])
-              .attr('y2', margin.top/4 + 25)
-              .attr('stroke-width', 0.5)
-              .attr('stroke', 'black')
-  } //end loop
+              .attr('y', margin.top/1.5)
+              .attr('x', xPoints.min[0])
+              .attr('width', xPoints.max[0] - xPoints.min[0])
+              .attr('height', 9)
+              .style('fill', '#d6d6d6');
 
-  //append min and max bars
-  smallChart.append('rect')
-            .attr('class', 'chart-desc')
-            .attr('y', margin.top/4)
-            .attr('x', xPoints.min[0])
-            .attr('width', xPoints.max[0] - xPoints.min[0])
-            .attr('height', 9)
-            .style('fill', '#d6d6d6');
+    //append iqr bars
+    smallChart.append('rect')
+              .attr('class', 'chart-desc')
+              .attr('y', margin.top/1.5)
+              .attr('x', xPoints.q1[0])
+              .attr('width', xPoints.q3[0] - xPoints.q1[0])
+              .attr('height', 9)
+              .style('fill', '#afafaf');
 
-  //append iqr bars
-  smallChart.append('rect')
-            .attr('class', 'chart-desc')
-            .attr('y', margin.top/4)
-            .attr('x', xPoints.q1[0])
-            .attr('width', xPoints.q3[0] - xPoints.q1[0])
-            .attr('height', 9)
-            .style('fill', '#afafaf');
+    //append median
+    smallChart.append('circle')
+              .attr('class', 'chart-desc')
+              .attr('cx', xPoints.med[0])
+              .attr('cy', margin.top / (margin.top / (margin.top / 1.5 + 4.5)))
+              .attr('r', 12)
+              .style('fill', '#898989');
+  }
 
-  //append median
-  smallChart.append('circle')
-            .attr('class', 'chart-desc')
-            .attr('cx', xPoints.med[0])
-            .attr('cy', margin.top / (margin.top / (margin.top / 4 + 4.5)))
-            .attr('r', 12)
-            .style('fill', '#898989');
+  else if (view == 'dots') {
+
+    var dots = [margin.left/2, margin.left/1.8, margin.left/1.6, margin.left/1.5, margin.left/1.3, margin.left,
+                margin.left*1.1, margin.left*1.2, margin.left*1.4, margin.left*1.9, margin.left*2, margin.left*2.4,
+                margin.left*2.6, margin.left*2.6, margin.left*2.7, margin.left*2.8, margin.left*2.9]
+
+    smallChart.selectAll('circle')
+              .data(dots)
+              .enter()
+              .append('circle')
+              .attr('cx', function(d) {return d})
+              .attr('cy', function(d, i) {
+                if (i%4 == 0) {return margin.top}
+                else if (i%3 == 0) {return margin.top*1.1}
+                else if (i%2 == 0) {return margin.top*0.9}
+                else {return margin.top*0.8}})
+              .attr('r', 3)
+              .attr('opacity', 0.6)
+  }
+
+    // smallChart.append('line')
+    //           .attr('x1', margin.left*1.4)
+    //           .attr('y1', margin.top/2)
+    //           .attr('x2', margin.left*1.2)
+    //           .attr('y2', margin.top*0.9)
+    //           .attr('stroke-width', 0.7)
+    //           .attr('stroke', 'black')
+    //           .attr('stroke-dasharray', '2,3')
+    //           .attr('opacity', 0.5)
+    //
+    //
+    // smallChart.append('line')
+    //           .attr('x1', margin.left*1.9)
+    //           .attr('y1', margin.top/1.8)
+    //           .attr('x2', margin.left*1.3)
+    //           .attr('y2', margin.top*0.9)
+    //           .attr('stroke-width', 0.7)
+    //           .attr('stroke', 'black')
+    //           .attr('stroke-dasharray', '2,3')
+    //           .attr('opacity', 0.5)
+    //
+    // smallChart.append('line')
+    //           .attr('x1', margin.left*1.1)
+    //           .attr('y1', margin.top/1.8)
+    //           .attr('x2', margin.left*1.1)
+    //           .attr('y2', margin.top*0.9)
+    //           .attr('stroke-width', .7)
+    //           .attr('stroke', 'black')
+    //           .attr('stroke-dasharray', '2,3')
+    //           .attr('opacity', 0.5)
+
+
+    var description = ['Each dot represents one defendant. Its horizonal location',
+                        'represents the prison sentence that defendent received.']
+
+    smallChart.selectAll('text')
+              .data(description)
+              .enter()
+              .append('text')
+              .attr('x', margin.left/2)
+              .attr('y', function(d,i) {
+                if (i == 0) {return margin.top*1.3}
+                else {return margin.top*1.4}})
+              .attr('class', 'chart-desc-text')
+              .text(function(d) {return d})
+
+
+
 
 }; // end makeSideChart
 
@@ -242,6 +325,7 @@ function drawChart() {
 
   //add variable labels
   appendLabels(xScale, yScale);
+
 
   //create boxplot groups
   boxplotGroups = chart.selectAll("rect")
@@ -701,6 +785,48 @@ function removePlots(sorting=false) {
 
 
 
+
+
+
+function explodeScatters(variable, catLength) {
+
+  chart.selectAll('dot')
+        .data(dataset)
+        .enter()
+        .filter(function(d) {return !isNaN(d[variable]) & d.sentence <= 30})
+        .append('circle')
+        .attr('class', 'dot')
+        .attr('opacity', 0)
+        .attr('cx', function(d, i) {return yScale(15)})
+        .attr('cy', function(d, i) {return xScale(d[variable]) + xScale.bandwidth()/2})
+        .attr('clip-path', 'url(#chart-area)')
+        .transition()
+        .duration(function(d, i) {
+          if (i%4 === 0) {return 900 + Math.random()*100}
+          else if (i%4 === 1) {return 1000 + Math.random()*100}
+          else if (i%4 === 2) {return 1100 + Math.random()*100}
+          else {return 1300 + Math.random()*100}
+        })
+        .ease(d3.easeBackOut)
+        .attr('cx', function(d) {return yScale(d.sentence) + Math.random()*10})
+        .attr('cy', function(d, i) {
+          if (i%2 === 0) {
+            return xScale(d[variable]) + xScale.bandwidth()/2 + Math.random() * height/(3*catLength)
+          }
+          else {
+           return xScale(d[variable]) + xScale.bandwidth()/2 - Math.random() * height/(3*catLength)
+          }
+        })
+        .attr('r', 4)
+        .attr('opacity', 0.5)
+        .attr('fill', function(d) {return colors[d[variable]][0]});
+
+}
+
+
+
+
+
 function drawScatter(dataset, variable, category, catLength) {
 
   chart.selectAll('dot')
@@ -726,6 +852,7 @@ function drawScatter(dataset, variable, category, catLength) {
            return xScale(d[variable]) + xScale.bandwidth()/2
           }
         })
+        .attr('clip-path', 'url(#chart-area)')
         .transition()
         .duration(function(d, i) {
           if (i%4 === 0) {return 900 + Math.random()*100}
@@ -751,6 +878,7 @@ function drawScatter(dataset, variable, category, catLength) {
 
 
 function delayScatters(dataset) {
+
   var categories = d3.selectAll('.var-labels')
   var catLength = categories._groups[0].length
   var selectedVariable = d3.select('input[name = "variable"]:checked')
@@ -772,15 +900,55 @@ function delayScatters(dataset) {
 
     if (!clicked[cat]) {
       drawScatter(dataset, selectedVariable, cat, catLength)
-      box.attr('opacity', 0); //it's still technically there and the tooltip still works but probably shouldnt
+      box.transition().duration(800).attr('opacity', 0); //it's still technically there and the tooltip still works but probably shouldnt
       clicked[cat] = true;
     }
     else if (clicked[cat]) {
       scatters = d3.selectAll('.dot' + cat)
 
-      scatters.remove()
-      box.attr('opacity', 1);
+      scatters.attr('clip-path', 'url(#chart-area)').transition()
+              .duration(function(d, i) {
+                if (i%4 === 0) {return 700 + Math.random()*100}
+                else if (i%4 === 1) {return 1000 + Math.random()*100}
+                else if (i%4 === 2) {return 1300 + Math.random()*100}
+                else {return 1700 + Math.random()*100}
+              })
+              .attr('cx', -10)
+              .remove()
+      box.transition().duration(1300).attr('opacity', 1);
       clicked[cat] = false;
     }
   }) //end categories.on
+
+
+  //explode all
+  var explodeButton = d3.select('#explode-button')
+  var explodeClicked = false;
+
+  explodeButton.on('click', function() {
+    var box = d3.selectAll('.plot')
+
+    if (!explodeClicked) {
+      box.transition().duration(800).attr('opacity', 0);
+      explodeScatters(selectedVariable, catLength)
+      explodeClicked = true
+    }
+    else if (explodeClicked) {
+      box.transition().duration(1300).attr('opacity', 1);
+      scatters = d3.selectAll('.dot')
+      scatters.attr('clip-path', 'url(#chart-area)').transition()
+              .duration(function(d, i) {
+                if (i%4 === 0) {return 700 + Math.random()*100}
+                else if (i%4 === 1) {return 1000 + Math.random()*100}
+                else if (i%4 === 2) {return 1300 + Math.random()*100}
+                else {return 1700 + Math.random()*100}
+              })
+              .attr('cx', -10)
+              .remove()
+      explodeClicked = false
+
+    }
+  })
+
+
 } //end delayScatters
