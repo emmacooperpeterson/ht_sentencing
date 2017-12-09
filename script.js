@@ -150,20 +150,27 @@ function getScales(finalData) {
 
 function explodeOption() {
   smallChart.append('rect')
-            .attr('x', margin.left/2)
-            .attr('y', margin.top/7)
+            .attr('x', margin.left*1.6)
+            .attr('y', margin.top/12.5)
             .attr('height', 20)
             .attr('width', 36)
             .attr('rx', 12)
             .attr('ry', 12)
+            .attr('id', 'oval')
             .attr('fill', '#898989')
 
   smallChart.append('circle')
-            .attr('cx', margin.left/1.65)
-            .attr('cy', margin.top/4.1)
+            .attr('cx', margin.left*1.7)
+            .attr('cy', margin.top/5.6)
             .attr('r', 8)
             .attr('id', 'explode-button')
             .attr('fill', 'white')
+
+  smallChart.append('text')
+            .attr('x', margin.left/2)
+            .attr('y', margin.top/4.5)
+            .attr('class', 'side-header')
+            .text('Explode plots:')
 }
 
 
@@ -182,9 +189,9 @@ function drawSideChart(view='box') {
       //append text
       smallChart.append('text')
                 .attr('class', 'desc box-desc box-desc-text')
-                .attr('transform', 'rotate(25' + ',' + xPoints[x][0] + ',' + (margin.top) + ')')
+                .attr('transform', 'rotate(25' + ',' + xPoints[x][0] + ',' + (margin.top*1.1) + ')')
                 .attr('x', xPoints[x][0])
-                .attr('y', margin.top)
+                .attr('y', margin.top*1.1)
                 .text(xPoints[x][1])
                 .attr('opacity', 1)
 
@@ -192,9 +199,9 @@ function drawSideChart(view='box') {
       smallChart.append('line')
                 .attr('class', 'desc box-desc')
                 .attr('x1', xPoints[x][0])
-                .attr('y1', margin.top/1.2)
+                .attr('y1', margin.top/1.1)
                 .attr('x2', xPoints[x][0])
-                .attr('y2', margin.top/1.1)
+                .attr('y2', margin.top)
                 .attr('stroke-width', 0.5)
                 .attr('stroke', 'black')
                 .attr('opacity', 1)
@@ -203,7 +210,7 @@ function drawSideChart(view='box') {
     //append min and max bars
     smallChart.append('rect')
               .attr('class', 'desc box-desc')
-              .attr('y', margin.top/1.5)
+              .attr('y', margin.top/1.3)
               .attr('x', xPoints.min[0])
               .attr('width', xPoints.max[0] - xPoints.min[0])
               .attr('height', 9)
@@ -213,7 +220,7 @@ function drawSideChart(view='box') {
     //append iqr bars
     smallChart.append('rect')
               .attr('class', 'desc box-desc')
-              .attr('y', margin.top/1.5)
+              .attr('y', margin.top/1.3)
               .attr('x', xPoints.q1[0])
               .attr('width', xPoints.q3[0] - xPoints.q1[0])
               .attr('height', 9)
@@ -224,7 +231,7 @@ function drawSideChart(view='box') {
     smallChart.append('circle')
               .attr('class', 'desc box-desc')
               .attr('cx', xPoints.med[0])
-              .attr('cy', margin.top / (margin.top / (margin.top / 1.5 + 4.5)))
+              .attr('cy', margin.top / (margin.top / (margin.top / 1.3 + 4.5)))
               .attr('r', 12)
               .style('fill', '#898989')
               .attr('opacity', 1);
@@ -250,57 +257,21 @@ function drawSideChart(view='box') {
               .attr('r', 3)
               .attr('opacity', 0.6)
 
-    var description = ['Each dot represents one defendant. Its horizonal location',
+    var description = ['Each dot represents one defendant. Its horizonal position',
                         'represents the prison sentence that defendent received.']
 
-    smallChart.selectAll('text')
+    smallChart.selectAll('text.desc')
               .data(description)
               .enter()
               .append('text')
               .attr('x', margin.left/2)
-              .attr('y', function(d,i) {
-                if (i == 0) {return margin.top*1.3}
-                else {return margin.top*1.4}})
+              .attr('y', function(d,i) {console.log(i);
+                 if (i === 0) {return margin.top*1.4}
+                 else {return margin.top*1.5}})
               .attr('class', 'desc dot-desc dot-desc-text')
               .text(function(d) {return d})
               .attr('opacity', 1)
     }
-
-    // smallChart.append('line')
-    //           .attr('x1', margin.left*1.4)
-    //           .attr('y1', margin.top/2)
-    //           .attr('x2', margin.left*1.2)
-    //           .attr('y2', margin.top*0.9)
-    //           .attr('stroke-width', 0.7)
-    //           .attr('stroke', 'black')
-    //           .attr('stroke-dasharray', '2,3')
-    //           .attr('opacity', 0.5)
-    //
-    //
-    // smallChart.append('line')
-    //           .attr('x1', margin.left*1.9)
-    //           .attr('y1', margin.top/1.8)
-    //           .attr('x2', margin.left*1.3)
-    //           .attr('y2', margin.top*0.9)
-    //           .attr('stroke-width', 0.7)
-    //           .attr('stroke', 'black')
-    //           .attr('stroke-dasharray', '2,3')
-    //           .attr('opacity', 0.5)
-    //
-    // smallChart.append('line')
-    //           .attr('x1', margin.left*1.1)
-    //           .attr('y1', margin.top/1.8)
-    //           .attr('x2', margin.left*1.1)
-    //           .attr('y2', margin.top*0.9)
-    //           .attr('stroke-width', .7)
-    //           .attr('stroke', 'black')
-    //           .attr('stroke-dasharray', '2,3')
-    //           .attr('opacity', 0.5)
-
-
-
-
-
 }; // end makeSideChart
 
 
@@ -901,19 +872,21 @@ function delayScatters(dataset) {
 
 
   //explode all
-  var explodeButton = d3.select('#explode-button')
+  var explodeButton = d3.selectAll('#explode-button, #oval')
   var explodeClicked = false;
 
   explodeButton.on('click', function() {
     var box = d3.selectAll('.plot')
     var desc = d3.selectAll('.desc')
+    var oval = d3.select('#oval')
 
     if (!explodeClicked) {
+      explodeButton.transition().duration(500).attr('cx', margin.left*1.86)
+      oval.transition().duration(500).attr('fill', 'black')
       for (cat in clicked) {
         if (!clicked[cat]) {
           desc.remove()
           drawSideChart(view='dots')
-          explodeButton.transition().duration(500).attr('cx', margin.left/1.3)
           box.transition().duration(800).attr('opacity', 0);
           drawScatter(dataset, selectedVariable, cat, catLength)
           clicked[cat] = true
@@ -923,11 +896,12 @@ function delayScatters(dataset) {
     }
 
     else if (explodeClicked) {
+      explodeButton.transition().duration(500).attr('cx', margin.left*1.7)
+      oval.transition().duration(500).attr('fill', '#898989')
       for (cat in clicked) {
         if (clicked[cat]) {
           desc.remove()
           drawSideChart(view='box')
-          explodeButton.transition().duration(500).attr('cx', margin.left/1.6)
           box.transition().duration(1300).attr('opacity', 1)
           scatters = d3.selectAll('.dot')
           scatters.attr('clip-path', 'url(#chart-area)').transition()
