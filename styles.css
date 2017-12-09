@@ -82,7 +82,7 @@ li {
   top: 475px;
 }
 
-.chart-desc-text {
+.box-desc-text, .dot-desc-text {
   font-family: 'Courier New', serif;
   font-size: 8px;
 }

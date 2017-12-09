@@ -73,6 +73,7 @@ d3.json("ht_sentencing.json", function(error, data) {
   //draw initial chart
   //finalData = getData();
   //scales = getScales(finalData);
+  explodeOption();
   drawSideChart();
   drawChart();
   drawGrid();
@@ -147,20 +148,28 @@ function getScales(finalData) {
 
 
 
-
-function drawSideChart(view='dots') {
+function explodeOption() {
+  smallChart.append('rect')
+            .attr('x', margin.left/2)
+            .attr('y', margin.top/7)
+            .attr('height', 20)
+            .attr('width', 36)
+            .attr('rx', 12)
+            .attr('ry', 12)
+            .attr('fill', '#898989')
 
   smallChart.append('circle')
-            .attr('cx', margin.left/1.8)
-            .attr('cy', margin.top/4)
+            .attr('cx', margin.left/1.65)
+            .attr('cy', margin.top/4.1)
             .attr('r', 8)
             .attr('id', 'explode-button')
-            .attr('fill', 'orange')
-  //
-  // var t = d3.select('#explode-button')
-  // //t.on('click', explodeScatters())
+            .attr('fill', 'white')
+}
 
 
+
+
+function drawSideChart(view='box') {
 
   var xPoints = {'min': [smallWidth/6, 'minimum'], 'q1': [smallWidth/3, '25th percentile'],
                 'med': [smallWidth/2, 'median'], 'q3': [smallWidth/1.5, '75th percentile'],
@@ -172,48 +181,53 @@ function drawSideChart(view='dots') {
     for (var x in xPoints) {
       //append text
       smallChart.append('text')
-                .attr('class', 'chart-desc-text')
+                .attr('class', 'desc box-desc box-desc-text')
                 .attr('transform', 'rotate(25' + ',' + xPoints[x][0] + ',' + (margin.top) + ')')
                 .attr('x', xPoints[x][0])
                 .attr('y', margin.top)
                 .text(xPoints[x][1])
+                .attr('opacity', 1)
 
       //append lines
       smallChart.append('line')
-                .attr('class', 'chart-desc')
+                .attr('class', 'desc box-desc')
                 .attr('x1', xPoints[x][0])
                 .attr('y1', margin.top/1.2)
                 .attr('x2', xPoints[x][0])
                 .attr('y2', margin.top/1.1)
                 .attr('stroke-width', 0.5)
                 .attr('stroke', 'black')
+                .attr('opacity', 1)
     } //end loop
 
     //append min and max bars
     smallChart.append('rect')
-              .attr('class', 'chart-desc')
+              .attr('class', 'desc box-desc')
               .attr('y', margin.top/1.5)
               .attr('x', xPoints.min[0])
               .attr('width', xPoints.max[0] - xPoints.min[0])
               .attr('height', 9)
-              .style('fill', '#d6d6d6');
+              .style('fill', '#d6d6d6')
+              .attr('opacity', 1);
 
     //append iqr bars
     smallChart.append('rect')
-              .attr('class', 'chart-desc')
+              .attr('class', 'desc box-desc')
               .attr('y', margin.top/1.5)
               .attr('x', xPoints.q1[0])
               .attr('width', xPoints.q3[0] - xPoints.q1[0])
               .attr('height', 9)
-              .style('fill', '#afafaf');
+              .style('fill', '#afafaf')
+              .attr('opacity', 1);
 
     //append median
     smallChart.append('circle')
-              .attr('class', 'chart-desc')
+              .attr('class', 'desc box-desc')
               .attr('cx', xPoints.med[0])
               .attr('cy', margin.top / (margin.top / (margin.top / 1.5 + 4.5)))
               .attr('r', 12)
-              .style('fill', '#898989');
+              .style('fill', '#898989')
+              .attr('opacity', 1);
   }
 
   else if (view == 'dots') {
@@ -226,6 +240,7 @@ function drawSideChart(view='dots') {
               .data(dots)
               .enter()
               .append('circle')
+              .attr('class', 'desc dot-desc')
               .attr('cx', function(d) {return d})
               .attr('cy', function(d, i) {
                 if (i%4 == 0) {return margin.top}
@@ -234,7 +249,22 @@ function drawSideChart(view='dots') {
                 else {return margin.top*0.8}})
               .attr('r', 3)
               .attr('opacity', 0.6)
-  }
+
+    var description = ['Each dot represents one defendant. Its horizonal location',
+                        'represents the prison sentence that defendent received.']
+
+    smallChart.selectAll('text')
+              .data(description)
+              .enter()
+              .append('text')
+              .attr('x', margin.left/2)
+              .attr('y', function(d,i) {
+                if (i == 0) {return margin.top*1.3}
+                else {return margin.top*1.4}})
+              .attr('class', 'desc dot-desc dot-desc-text')
+              .text(function(d) {return d})
+              .attr('opacity', 1)
+    }
 
     // smallChart.append('line')
     //           .attr('x1', margin.left*1.4)
@@ -267,20 +297,6 @@ function drawSideChart(view='dots') {
     //           .attr('stroke-dasharray', '2,3')
     //           .attr('opacity', 0.5)
 
-
-    var description = ['Each dot represents one defendant. Its horizonal location',
-                        'represents the prison sentence that defendent received.']
-
-    smallChart.selectAll('text')
-              .data(description)
-              .enter()
-              .append('text')
-              .attr('x', margin.left/2)
-              .attr('y', function(d,i) {
-                if (i == 0) {return margin.top*1.3}
-                else {return margin.top*1.4}})
-              .attr('class', 'chart-desc-text')
-              .text(function(d) {return d})
 
 
 
@@ -787,46 +803,7 @@ function removePlots(sorting=false) {
 
 
 
-
-function explodeScatters(variable, catLength) {
-
-  chart.selectAll('dot')
-        .data(dataset)
-        .enter()
-        .filter(function(d) {return !isNaN(d[variable]) & d.sentence <= 30})
-        .append('circle')
-        .attr('class', 'dot')
-        .attr('opacity', 0)
-        .attr('cx', function(d, i) {return yScale(15)})
-        .attr('cy', function(d, i) {return xScale(d[variable]) + xScale.bandwidth()/2})
-        .attr('clip-path', 'url(#chart-area)')
-        .transition()
-        .duration(function(d, i) {
-          if (i%4 === 0) {return 900 + Math.random()*100}
-          else if (i%4 === 1) {return 1000 + Math.random()*100}
-          else if (i%4 === 2) {return 1100 + Math.random()*100}
-          else {return 1300 + Math.random()*100}
-        })
-        .ease(d3.easeBackOut)
-        .attr('cx', function(d) {return yScale(d.sentence) + Math.random()*10})
-        .attr('cy', function(d, i) {
-          if (i%2 === 0) {
-            return xScale(d[variable]) + xScale.bandwidth()/2 + Math.random() * height/(3*catLength)
-          }
-          else {
-           return xScale(d[variable]) + xScale.bandwidth()/2 - Math.random() * height/(3*catLength)
-          }
-        })
-        .attr('r', 4)
-        .attr('opacity', 0.5)
-        .attr('fill', function(d) {return colors[d[variable]][0]});
-
-}
-
-
-
-
-
+//inspired by: http://mcaule.github.io/d3_exploding_boxplot/
 function drawScatter(dataset, variable, category, catLength) {
 
   chart.selectAll('dot')
@@ -908,10 +885,12 @@ function delayScatters(dataset) {
 
       scatters.attr('clip-path', 'url(#chart-area)').transition()
               .duration(function(d, i) {
-                if (i%4 === 0) {return 700 + Math.random()*100}
-                else if (i%4 === 1) {return 1000 + Math.random()*100}
-                else if (i%4 === 2) {return 1300 + Math.random()*100}
-                else {return 1700 + Math.random()*100}
+                if (i%6 === 0) {return 600 + Math.random()*100}
+                else if (i%5 === 0) {return 900 + Math.random()*100}
+                else if (i%4 === 0) {return 1200 + Math.random()*100}
+                else if (i%3 === 0) {return 1500 + Math.random()*100}
+                else if (i%2 === 0) {return 1800 + Math.random()*100}
+                else {return 2100 + Math.random()*100}
               })
               .attr('cx', -10)
               .remove()
@@ -927,25 +906,45 @@ function delayScatters(dataset) {
 
   explodeButton.on('click', function() {
     var box = d3.selectAll('.plot')
+    var desc = d3.selectAll('.desc')
 
     if (!explodeClicked) {
-      box.transition().duration(800).attr('opacity', 0);
-      explodeScatters(selectedVariable, catLength)
-      explodeClicked = true
+      for (cat in clicked) {
+        if (!clicked[cat]) {
+          desc.remove()
+          drawSideChart(view='dots')
+          explodeButton.transition().duration(500).attr('cx', margin.left/1.3)
+          box.transition().duration(800).attr('opacity', 0);
+          drawScatter(dataset, selectedVariable, cat, catLength)
+          clicked[cat] = true
+        }
+      }
+      explodeClicked = true;
     }
+
     else if (explodeClicked) {
-      box.transition().duration(1300).attr('opacity', 1);
-      scatters = d3.selectAll('.dot')
-      scatters.attr('clip-path', 'url(#chart-area)').transition()
-              .duration(function(d, i) {
-                if (i%4 === 0) {return 700 + Math.random()*100}
-                else if (i%4 === 1) {return 1000 + Math.random()*100}
-                else if (i%4 === 2) {return 1300 + Math.random()*100}
-                else {return 1700 + Math.random()*100}
-              })
-              .attr('cx', -10)
-              .remove()
-      explodeClicked = false
+      for (cat in clicked) {
+        if (clicked[cat]) {
+          desc.remove()
+          drawSideChart(view='box')
+          explodeButton.transition().duration(500).attr('cx', margin.left/1.6)
+          box.transition().duration(1300).attr('opacity', 1)
+          scatters = d3.selectAll('.dot')
+          scatters.attr('clip-path', 'url(#chart-area)').transition()
+                  .duration(function(d, i) {
+                      if (i%6 === 0) {return 600 + Math.random()*100}
+                      else if (i%5 === 0) {return 900 + Math.random()*100}
+                      else if (i%4 === 0) {return 1200 + Math.random()*100}
+                      else if (i%3 === 0) {return 1500 + Math.random()*100}
+                      else if (i%2 === 0) {return 1800 + Math.random()*100}
+                      else {return 2100 + Math.random()*100}
+                  })
+                  .attr('cx', -10)
+                  .remove()
+          clicked[cat] = false
+        }
+      }
+      explodeClicked = false;
 
     }
   })
