@@ -119,6 +119,7 @@ li {
   cursor: pointer;
 }
 
+/*
 .plot {
   -moz-transition: all 0.5s;
   -o-transition: all 0.5s;
@@ -128,3 +129,4 @@ li {
 .plot:hover {
   opacity: 0.5;
 }
+*/

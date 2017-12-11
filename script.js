@@ -71,15 +71,13 @@ d3.json("ht_sentencing.json", function(error, data) {
   });
 
   //draw initial chart
-  //finalData = getData();
-  //scales = getScales(finalData);
   explodeOption();
   drawSideChart();
   drawChart();
   drawGrid();
   xLabel();
   applyFootnotes();
-  window.setTimeout('delayScatters(dataset)', 1); //better way to handle this? i cant select the labels until they appear
+  window.setTimeout('delayScatters(dataset)', 1);
 }); //end load data
 
 
@@ -89,14 +87,14 @@ function getData(sorted='ascending') {
 
   selectedVariable = d3.select('input[name="variable"]:checked').property("value");
 
-  var filteredData = dataset.filter(function(d) { return !isNaN(d[selectedVariable]) });
+  var filteredData = dataset.filter(function(d) {return !isNaN(d[selectedVariable]);});
   var nestedData = d3.nest()
       .key(function(d) {return d[selectedVariable];})
       .rollup(function(v) {return {
                 min: d3.min(v, function(d) {return d.sentence}),
-                q1: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.25),
+                q1: d3.quantile(v.map(function(d) {return d.sentence;}).sort(d3.ascending), 0.25),
                 median: d3.median(v, function(d) {return d.sentence;}),
-                q3: d3.quantile(v.map(function(d) { return d.sentence;}).sort(d3.ascending), 0.75),
+                q3: d3.quantile(v.map(function(d) {return d.sentence;}).sort(d3.ascending), 0.75),
                 max: d3.max(v, function(d) {return d.sentence;}),
                 count: v.length
                 };
@@ -111,8 +109,8 @@ function getData(sorted='ascending') {
 
             else {return d3.ascending(a.value.median, b.value.median)}
             }
-    );
-  }
+    ); //end sort
+  } //end if
 
   else if (sorted == 'descending') {
     nestedData.sort(function(a, b) {
@@ -122,12 +120,11 @@ function getData(sorted='ascending') {
 
             else {return d3.descending(a.value.median, b.value.median)}
             }
-    );
-  }
+    ); //end sort
+  } //end else if
 
   return nestedData;
 } //end getData
-
 
 
 
@@ -147,8 +144,15 @@ function getScales(finalData) {
 
 
 
-
+//append explode button
 function explodeOption() {
+
+  smallChart.append('text')
+            .attr('x', margin.left/2)
+            .attr('y', margin.top/4.5)
+            .attr('class', 'side-header')
+            .text('Explode plots:')
+
   smallChart.append('rect')
             .attr('x', margin.left*1.6)
             .attr('y', margin.top/12.5)
@@ -158,6 +162,12 @@ function explodeOption() {
             .attr('ry', 12)
             .attr('id', 'oval')
             .attr('fill', '#898989')
+            .on('mouseover', function(d) {
+              d3.select(this).style('cursor', 'pointer')},
+
+              'mouseout', function(d) {
+                d3.select(this).style('cursor', 'default')
+              })
 
   smallChart.append('circle')
             .attr('cx', margin.left*1.7)
@@ -165,13 +175,17 @@ function explodeOption() {
             .attr('r', 8)
             .attr('id', 'explode-button')
             .attr('fill', 'white')
+            .on('mouseover', function(d) {
+              d3.select(this).style('cursor', 'pointer')},
 
-  smallChart.append('text')
-            .attr('x', margin.left/2)
-            .attr('y', margin.top/4.5)
-            .attr('class', 'side-header')
-            .text('Explode plots:')
-}
+              'mouseout', function(d) {
+                d3.select(this).style('cursor', 'default')
+              })
+
+  //mouseover effect:
+  //https://stackoverflow.com/questions/36326683/d3-js-how-can-i-set-the-cursor-to-hand-when-mouseover-these-elements-on-svg-co
+
+} //end explodeOption
 
 
 
@@ -239,9 +253,14 @@ function drawSideChart(view='box') {
 
   else if (view == 'dots') {
 
-    var dots = [margin.left/2, margin.left/1.8, margin.left/1.6, margin.left/1.5, margin.left/1.3, margin.left,
-                margin.left*1.1, margin.left*1.2, margin.left*1.4, margin.left*1.9, margin.left*2, margin.left*2.4,
-                margin.left*2.6, margin.left*2.6, margin.left*2.7, margin.left*2.8, margin.left*2.9]
+    var dots = [margin.left/2, margin.left/1.8, margin.left/1.6, margin.left/1.5,
+                margin.left/1.3, margin.left, margin.left*1.1, margin.left*1.2,
+                margin.left*1.4, margin.left*1.9, margin.left*2, margin.left*2.4,
+                margin.left*2.6, margin.left*2.6, margin.left*2.7, margin.left*2.8,
+                margin.left*2.9]
+
+    var description = ['Each dot represents one defendant. Its horizonal position',
+                        'represents the prison sentence the defendent received.']
 
     smallChart.selectAll('circle')
               .data(dots)
@@ -256,9 +275,6 @@ function drawSideChart(view='box') {
                 else {return margin.top*0.8}})
               .attr('r', 3)
               .attr('opacity', 0.6)
-
-    var description = ['Each dot represents one defendant. Its horizonal position',
-                        'represents the prison sentence that defendent received.']
 
     smallChart.selectAll('text.desc')
               .data(description)
@@ -277,13 +293,12 @@ function drawSideChart(view='box') {
 
 
 
-
 function drawChart() {
 
   var sortMethod = d3.select('input[name="sort-by"]:checked')
                             .property("value");
-  finalData = getData(sortMethod);
 
+  finalData = getData(sortMethod);
   scales = getScales(finalData);
   xScale = scales.x
   yScale = scales.y
@@ -312,7 +327,6 @@ function drawChart() {
 
   //add variable labels
   appendLabels(xScale, yScale);
-
 
   //create boxplot groups
   boxplotGroups = chart.selectAll("rect")
@@ -442,6 +456,7 @@ function drawChart() {
 
   //tooltip on
   boxplotGroups.on('mouseover', function(d) {
+
     var plot = d3.select(this);
     var xValues = plot._groups[0][0].__data__.value;
     var y = parseFloat(plot._groups[0][0].childNodes[0].attributes[1].value);
@@ -525,7 +540,6 @@ function drawChart() {
 
 
 
-
 function appendLabels(xScale, yScale) {
 
   var races = {0: 'White', 1: 'Black', 2: 'Hispanic', 3: 'Asian', 4: 'Indian', 5: 'Other'}
@@ -537,11 +551,11 @@ function appendLabels(xScale, yScale) {
   var regions = {0: 'South', 1: 'Northeast', 2: 'West', 3: 'Midwest'}
   var years = {0: '2000-2003', 1: '2004-2007', 2: '2008-2011', 3: '2012-2015'}
 
-  labels = {'judge_race': races, 'judge_gender': genders,
-            'appointed_by': parties, 'def_race': races,
-            'def_gender': genders, 'vic_gender': genders,
-            'recruit': methods, 'type': types, 'region': regions,
-            'year_group': years}
+  var labels = {'judge_race': races, 'judge_gender': genders,
+                'appointed_by': parties, 'def_race': races,
+                'def_gender': genders, 'vic_gender': genders,
+                'recruit': methods, 'type': types, 'region': regions,
+                'year_group': years}
 
   var varLabels = chart.selectAll(".text")
         .data(finalData)
@@ -592,7 +606,6 @@ function xLabel() {
 
 
 
-
 function drawGrid() {
 
   finalData = getData();
@@ -610,7 +623,6 @@ function drawGrid() {
               .tickPadding(.92*height)
               .tickValues([0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30]))
       .attr('id', 'grid-ticks')
-
 
   //create gridlines https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
   function make_x_gridlines() {return d3.axisBottom(yScale)}
@@ -648,12 +660,30 @@ function drawGrid() {
   chart.append('text')
         .attr('class', 'permanent-footnote')
         .attr('opacity', 0)
+        .on('click', function() {
+          window.open('www.humantraffickingdata.org')
+        })
+        .on('mouseover', function(d) {
+          d3.select(this)
+            .style('cursor', 'pointer')
+            .transition()
+            .duration(500)
+            .style('opacity', 0.5)
+        })
+        .on('mouseout', function(d) {
+            d3.select(this)
+              .style('cursor', 'default')
+              .transition()
+              .duration(500)
+              .style('opacity', 1)
+          })
         .transition()
         .duration(1000)
         .attr('x', 0)
         .attr('y', height + margin.top/4)
         .attr('opacity', 1)
         .text('Source: www.HumanTraffickingData.org')
+
 
   chart.append('text')
         .attr('class', 'permanent-footnote')
@@ -731,6 +761,7 @@ function sortPlots(sortMenu) {
 
 
 
+
 //update boxplots
 var variableMenu = d3.select("#include-menu")
 
@@ -744,6 +775,8 @@ variableMenu.on('change', function() {
   applyFootnotes();
   window.setTimeout('delayScatters(dataset)', 3000);
 }); //end update process
+
+
 
 
 function removePlots(sorting=false) {
@@ -771,9 +804,6 @@ function removePlots(sorting=false) {
 
 
 
-
-
-
 //inspired by: http://mcaule.github.io/d3_exploding_boxplot/
 function drawScatter(dataset, variable, category, catLength) {
 
@@ -784,15 +814,8 @@ function drawScatter(dataset, variable, category, catLength) {
         .append('circle')
         .attr('class', function(d) {return 'dot ' + 'dot' + d[variable]})
         .attr('opacity', 0)
-        .attr('cx', function(d, i) {
-          if (i%2 === 0) { //https://bl.ocks.org/duhaime/14c30df6b82d3f8094e5a51e5fff739a
-            return yScale(15)
-          }
-          else {
-           return yScale(15)
-          }
-        })
-        .attr('cy', function(d, i) {
+        .attr('cx', yScale(15))
+        .attr('cy', function(d, i) { //https://bl.ocks.org/duhaime/14c30df6b82d3f8094e5a51e5fff739a
           if (i%2 === 0) {
             return xScale(d[variable]) + xScale.bandwidth()/2
           }
@@ -825,10 +848,9 @@ function drawScatter(dataset, variable, category, catLength) {
 
 
 
-//check if any of the values in array are true
-function clickedTrue(obj) {
-  //https://stackoverflow.com/questions/17117712/how-to-know-if-all-javascript-object-values-are-true
 
+//https://stackoverflow.com/questions/17117712/how-to-know-if-all-javascript-object-values-are-true
+function clickedTrue(obj) {
   for (var o in obj) {
     if(obj[o]) {return true}
   }
@@ -840,34 +862,35 @@ function clickedTrue(obj) {
 
 function delayScatters(dataset) {
 
-  var categories = d3.selectAll('.var-labels')
-  var catLength = categories._groups[0].length
+  var categories = d3.selectAll('.var-labels');
+  var catLength = categories._groups[0].length;
   var selectedVariable = d3.select('input[name = "variable"]:checked')
                             .property("value");
 
   //array to keep track of which plot has been clicked
   var cats = categories._groups[0]
-  var clicked = {}
+  var clicked = {};
   for (i = 0; i < catLength; i++) {
-    varID = cats[i].id
-    varNum = varID.substr(-1)
+    var varID = cats[i].id;
+    var varNum = varID.substr(-1);
     clicked[varNum] = false;
   }
 
+  //explode plots one at at time
   categories.on('click', function() {
     var plotID = this.id;
-    var cat = parseFloat(plotID.substr(plotID.length - 1))
-    var box = d3.select('#plot' + cat)
-    var desc = d3.selectAll('.desc')
+    var cat = parseFloat(plotID.substr(plotID.length - 1));
+    var box = d3.select('#plot' + cat);
+    var desc = d3.selectAll('.desc');
 
     if (!clicked[cat]) {
-      drawScatter(dataset, selectedVariable, cat, catLength)
-      box.transition().duration(800).attr('opacity', 0); //it's still technically there and the tooltip still works but probably shouldnt
+      drawScatter(dataset, selectedVariable, cat, catLength);
+      box.transition().duration(800).attr('opacity', 0);
       clicked[cat] = true;
     }
 
     else if (clicked[cat]) {
-      scatters = d3.selectAll('.dot' + cat)
+      var scatters = d3.selectAll('.dot' + cat);
 
       scatters.attr('clip-path', 'url(#chart-area)').transition()
               .duration(function(d, i) {
@@ -879,61 +902,61 @@ function delayScatters(dataset) {
                 else {return 2100 + Math.random()*100}
               })
               .attr('cx', -10)
-              .remove()
+              .attr('opacity', 0)
+              .remove();
       box.transition().duration(1300).attr('opacity', 1);
       clicked[cat] = false;
     }
-    console.log(clicked)
-    console.log(clickedTrue(clicked))
+
+    //change chart diagram if necessary
     if (clickedTrue(clicked)) {
-          desc.remove()
-          drawSideChart(view='dots')}
+          desc.remove();
+          drawSideChart(view='dots');
+    }
 
     else {
-          desc.remove()
-          drawSideChart(view='box')}
-
-
-
+          desc.remove();
+          drawSideChart(view='box');
+    }
   }) //end categories.on
 
 
-
-
   //explode all
-  var explodeButton = d3.selectAll('#explode-button, #oval')
+  var explodeButton = d3.selectAll('#explode-button, #oval');
+  var explodeCircle = d3.select('#explode-button');
   var explodeClicked = false;
 
   explodeButton.on('click', function() {
-    var box = d3.selectAll('.plot')
-    var desc = d3.selectAll('.desc')
-    var oval = d3.select('#oval')
+    var box = d3.selectAll('.plot');
+    var desc = d3.selectAll('.desc');
+    var oval = d3.select('#oval');
 
     if (!explodeClicked) {
-      explodeButton.transition().duration(500).attr('cx', margin.left*1.86)
+      explodeCircle.transition().duration(500).attr('cx', margin.left*1.86)
       oval.transition().duration(500).attr('fill', 'black')
       for (cat in clicked) {
         if (!clicked[cat]) {
-          desc.remove()
-          drawSideChart(view='dots')
+          desc.remove();
+          drawSideChart(view='dots');
           box.transition().duration(800).attr('opacity', 0);
-          drawScatter(dataset, selectedVariable, cat, catLength)
-          clicked[cat] = true
-        }
-      }
+          drawScatter(dataset, selectedVariable, cat, catLength);
+          clicked[cat] = true;
+        } //end if
+      } //end for
       explodeClicked = true;
-    }
+    } //end if
 
     else if (explodeClicked) {
-      explodeButton.transition().duration(500).attr('cx', margin.left*1.7)
-      oval.transition().duration(500).attr('fill', '#898989')
+      explodeCircle.transition().duration(500).attr('cx', margin.left*1.7);
+      oval.transition().duration(500).attr('fill', '#898989');
       for (cat in clicked) {
         if (clicked[cat]) {
-          desc.remove()
-          drawSideChart(view='box')
-          box.transition().duration(1300).attr('opacity', 1)
-          scatters = d3.selectAll('.dot')
-          scatters.attr('clip-path', 'url(#chart-area)').transition()
+          desc.remove();
+          drawSideChart(view='box');
+          box.transition().duration(1300).attr('opacity', 1);
+          var scatters = d3.selectAll('.dot');
+          scatters.attr('clip-path', 'url(#chart-area)')
+                  .transition()
                   .duration(function(d, i) {
                       if (i%6 === 0) {return 600 + Math.random()*100}
                       else if (i%5 === 0) {return 900 + Math.random()*100}
@@ -943,14 +966,12 @@ function delayScatters(dataset) {
                       else {return 2100 + Math.random()*100}
                   })
                   .attr('cx', -10)
-                  .remove()
-          clicked[cat] = false
-        }
-      }
+                  .attr('opacity', 0)
+                  .remove();
+          clicked[cat] = false;
+        } //end if
+      } //end for
       explodeClicked = false;
-
-    }
-  })
-
-
+    } //end else if
+  }) //end explodeButton.on
 } //end delayScatters
