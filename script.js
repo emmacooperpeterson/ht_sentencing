@@ -753,6 +753,16 @@ function sortPlots(sortMenu) {
   sortMenu.on('change', function() {
   var sortMethod = d3.select('input[name="sort-by"]:checked')
                               .property("value");
+
+  //transition explode button and reset chart diagram
+  var explodeCircle = d3.select('#explode-button');
+  var desc = d3.selectAll('.desc');
+  var oval = d3.select('#oval');
+  explodeCircle.transition().duration(500).attr('cx', margin.left*1.7)
+  oval.transition().duration(500).attr('fill', '#898989')
+  desc.remove();
+  drawSideChart(view='box');
+
   removePlots(true);
   drawChart();
   window.setTimeout('delayScatters(dataset)', 3000);
@@ -768,6 +778,15 @@ var variableMenu = d3.select("#include-menu")
 variableMenu.on('change', function() {
   var selectedVariable = d3.select('input[name = "variable"]:checked')
                             .property("value");
+
+  //transition explode button and reset diagram
+  var explodeCircle = d3.select('#explode-button');
+  var desc = d3.selectAll('.desc');
+  var oval = d3.select('#oval');
+  explodeCircle.transition().duration(500).attr('cx', margin.left*1.7)
+  oval.transition().duration(500).attr('fill', '#898989')
+  desc.remove();
+  drawSideChart(view='box');
 
   removePlots();
   drawChart();
