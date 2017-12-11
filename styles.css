@@ -118,15 +118,3 @@ li {
   font-weight: bold;
   cursor: pointer;
 }
-
-/*
-.plot {
-  -moz-transition: all 0.5s;
-  -o-transition: all 0.5s;
-  -webkit-transition: all 0.5s;
-}
-
-.plot:hover {
-  opacity: 0.5;
-}
-*/
