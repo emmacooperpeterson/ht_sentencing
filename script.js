@@ -661,7 +661,7 @@ function drawGrid() {
         .attr('class', 'permanent-footnote')
         .attr('opacity', 0)
         .on('click', function() {
-          window.open('www.humantraffickingdata.org')
+          window.open('http://www.humantraffickingdata.org')
         })
         .on('mouseover', function(d) {
           d3.select(this)
