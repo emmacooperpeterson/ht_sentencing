@@ -658,7 +658,7 @@ function drawGrid() {
 
   //permanent footnotes
   chart.append('text')
-        .attr('class', 'permanent-footnote')
+        .attr('class', 'permanent-footnote links')
         .attr('opacity', 0)
         .on('click', function() {
           window.open('http://www.humantraffickingdata.org')
@@ -683,6 +683,33 @@ function drawGrid() {
         .attr('y', height + margin.top/4)
         .attr('opacity', 1)
         .text('Source: www.HumanTraffickingData.org')
+
+  chart.append('text')
+        .attr('class', 'permanent-footnote links')
+        .attr('opacity', 0)
+        .on('click', function() {
+          window.open('https://github.com/emmacooperpeterson/ht_sentencing')
+        })
+        .on('mouseover', function(d) {
+          d3.select(this)
+            .style('cursor', 'pointer')
+            .transition()
+            .duration(500)
+            .style('opacity', 0.5)
+        })
+        .on('mouseout', function(d) {
+            d3.select(this)
+              .style('cursor', 'default')
+              .transition()
+              .duration(500)
+              .style('opacity', 1)
+          })
+        .transition()
+        .duration(1000)
+        .attr('x', 202)
+        .attr('y', height + margin.top/4)
+        .attr('opacity', 1)
+        .text('| view code')
 
 
   chart.append('text')

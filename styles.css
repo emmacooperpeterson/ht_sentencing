@@ -14,14 +14,6 @@
   top: 40px;
 }
 
-#source {
-  font-size: 11px;
-  font-family: 'Courier New', serif;
-  position: absolute;
-  left: 50px;
-  top: 70px;
-}
-
 
 /* SIDEBAR */
 
@@ -117,4 +109,8 @@ li {
 .var-labels:hover {
   font-weight: bold;
   cursor: pointer;
+}
+
+.links {
+  font-style: italic;
 }
