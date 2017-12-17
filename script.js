@@ -260,7 +260,7 @@ function drawSideChart(view='box') {
                 margin.left*2.9]
 
     var description = ['Each dot represents one defendant. Its horizonal position',
-                        'represents the prison sentence the defendent received.']
+                        'represents the prison sentence the defendant received.']
 
     smallChart.selectAll('circle')
               .data(dots)
